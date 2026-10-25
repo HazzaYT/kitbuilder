@@ -1,0 +1,1991 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KitBuilder — Haz's Kit List (21/07/2026)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#07080c',
+                        cardbg: '#11141d',
+                        cardhover: '#181c29',
+                        bordercol: '#23293a',
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Inter & JetBrains Mono Fonts for High-Contrast Readability -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #07080c;
+            color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* High-contrast custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #07080c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2e364f;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f59e0b;
+        }
+        /* Smooth strike-through animation for packed items */
+        .packed-row {
+            background-color: rgba(16, 185, 129, 0.06) !important;
+            border-color: rgba(16, 185, 129, 0.3) !important;
+        }
+        .sunlight-contrast {
+            filter: contrast(1.12) brightness(1.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-amber-500 selection:text-black pb-36">
+
+    <!-- ================= TOP STICKY HEADER ================= -->
+    <header class="sticky top-0 z-40 bg-cardbg/95 backdrop-blur-md border-b border-bordercol px-3 sm:px-6 py-3 shadow-2xl">
+        <div class="max-w-6xl mx-auto flex flex-col gap-3">
+            <!-- Top Row: Brand, Master Date Badge & Quick Utility Buttons -->
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500 text-black flex items-center justify-center font-black text-xl shadow-lg shadow-amber-500/25 shrink-0">
+                        <i class="fa-solid fa-video"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h1 class="text-lg sm:text-xl font-black tracking-tight text-white uppercase">KitBuilder</h1>
+                            <span class="text-[11px] mono font-bold px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                                HAZ'S KIT • 21/07/2026
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400 hidden sm:block">Camera Operator Pre-Flight, Weight & Cable Dependency Manager</p>
+                    </div>
+                </div>
+
+                <!-- Right Controls -->
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                    <button onclick="toggleSunlightMode()" id="sunlightBtn" title="Boost Contrast for Bright Sunlight" class="p-2.5 bg-darkbg hover:bg-gray-800 text-gray-300 rounded-xl border border-bordercol text-xs font-bold transition active:scale-95">
+                        <i class="fa-solid fa-sun text-amber-400"></i>
+                    </button>
+                    <button onclick="openAddItemModal()" class="px-3 py-2.5 bg-amber-500 hover:bg-amber-400 text-black rounded-xl text-xs font-extrabold transition shadow-lg shadow-amber-500/20 flex items-center gap-1.5 active:scale-95">
+                        <i class="fa-solid fa-plus"></i>
+                        <span class="hidden xs:inline">Add Gear</span>
+                    </button>
+                    <button onclick="openResetMenu()" class="px-3 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-xl text-xs font-bold transition border border-gray-700 flex items-center gap-1.5 active:scale-95">
+                        <i class="fa-solid fa-rotate-left text-amber-400"></i>
+                        <span>Wrap / Reset</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="grid grid-cols-3 gap-1.5 bg-darkbg p-1 rounded-xl border border-bordercol">
+                <button onclick="switchView('checklist')" id="tab-checklist" class="py-2 px-3 rounded-lg text-xs sm:text-sm font-bold bg-amber-500 text-black shadow transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <span>Kit Checklist</span>
+                    <span id="navBadgeCount" class="mono text-[11px] px-1.5 py-0.5 rounded bg-black/20 font-extrabold">0/0</span>
+                </button>
+                <button onclick="switchView('matrix')" id="tab-matrix" class="py-2 px-3 rounded-lg text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition flex items-center justify-center gap-2 relative">
+                    <i class="fa-solid fa-plug-circle-bolt"></i>
+                    <span>Cable & Power Matrix</span>
+                    <span id="missingCableBadge" class="hidden w-2.5 h-2.5 rounded-full bg-red-500 animate-ping absolute top-1.5 right-2"></span>
+                </button>
+                <button onclick="switchView('summary')" id="tab-summary" class="py-2 px-3 rounded-lg text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-export"></i>
+                    <span>Manifest / Export</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= MAIN WORKSPACE ================= -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 pt-4 space-y-5">
+
+        <!-- 1. SMART ALERTS BANNER (Missing Cables / Adapters / Flight Battery Warnings) -->
+        <div id="smartAlertsContainer" class="space-y-2.5"></div>
+
+        <!-- ================= VIEW 1: KIT CHECKLIST ================= -->
+        <section id="view-checklist" class="space-y-5">
+
+            <!-- Shoot Profile Presets Bar -->
+            <div class="bg-cardbg border border-bordercol rounded-2xl p-4 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-amber-400 text-sm"></i>
+                        <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-200">1. Select Shoot Profile Preset</h2>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="activeProfileLabel" class="text-xs mono font-bold px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                            Profile: Full Master Kit
+                        </span>
+                        <button onclick="saveCurrentAsCustomProfile()" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 transition">
+                            <i class="fa-solid fa-bookmark mr-1 text-amber-400"></i>Save Custom
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preset Buttons Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                    <button onclick="applyProfile('all')" id="prof-all" class="profile-card p-3 rounded-xl border border-amber-500 bg-amber-500/10 text-left transition hover:bg-cardhover group">
+                        <div class="flex items-center justify-between">
+                            <span class="text-amber-400 font-extrabold text-xs sm:text-sm"><i class="fa-solid fa-boxes-stacked mr-1"></i>All Master Kit</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1 line-clamp-2">Complete 21/07/2026 inventory & all cables</p>
+                    </button>
+
+                    <button onclick="applyProfile('doc')" id="prof-doc" class="profile-card p-3 rounded-xl border border-bordercol bg-darkbg text-left transition hover:border-amber-500/50 hover:bg-cardhover group">
+                        <div class="flex items-center justify-between">
+                            <span class="text-white font-extrabold text-xs sm:text-sm group-hover:text-amber-400"><i class="fa-solid fa-person-running mr-1 text-amber-400"></i>Minimalist Doc</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1 line-clamp-2">R6 Mk II + EF-R + 24-105L, Lavs, Shotgun, ND</p>
+                    </button>
+
+                    <button onclick="applyProfile('cinema')" id="prof-cinema" class="profile-card p-3 rounded-xl border border-bordercol bg-darkbg text-left transition hover:border-amber-500/50 hover:bg-cardhover group">
+                        <div class="flex items-center justify-between">
+                            <span class="text-white font-extrabold text-xs sm:text-sm group-hover:text-amber-400"><i class="fa-solid fa-film mr-1 text-amber-400"></i>Heavy Commercial</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1 line-clamp-2">BMPCC 6K Pro Cage, V-Lok 175Wh, F100 7", T7 SSD, Tripod</p>
+                    </button>
+
+                    <button onclick="applyProfile('gimbal')" id="prof-gimbal" class="profile-card p-3 rounded-xl border border-bordercol bg-darkbg text-left transition hover:border-amber-500/50 hover:bg-cardhover group">
+                        <div class="flex items-center justify-between">
+                            <span class="text-white font-extrabold text-xs sm:text-sm group-hover:text-amber-400"><i class="fa-solid fa-helicopter mr-1 text-amber-400"></i>Gimbal & Aerial</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1 line-clamp-2">Manfrotto MVG460 + R6 II + 17-55 + DJI Mini 4 Pro</p>
+                    </button>
+
+                    <button onclick="applyProfile('interview')" id="prof-interview" class="profile-card p-3 rounded-xl border border-bordercol bg-darkbg text-left transition hover:border-amber-500/50 hover:bg-cardhover group">
+                        <div class="flex items-center justify-between">
+                            <span class="text-white font-extrabold text-xs sm:text-sm group-hover:text-amber-400"><i class="fa-solid fa-microphone-lines mr-1 text-amber-400"></i>2-Cam Interview</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1 line-clamp-2">6K Pro + R6 II, Tripod, NT1A, STC-1, M650 Lavs, DR07P</p>
+                    </button>
+
+                    <button onclick="applyProfile('custom')" id="prof-custom" class="profile-card p-3 rounded-xl border border-bordercol bg-darkbg text-left transition hover:border-amber-500/50 hover:bg-cardhover group">
+                        <div class="flex items-center justify-between">
+                            <span class="text-white font-extrabold text-xs sm:text-sm group-hover:text-amber-400"><i class="fa-solid fa-star mr-1 text-amber-400"></i>Saved Custom</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1 line-clamp-2">Load your saved custom shoot rig selection</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter, Search & Quick Pack Controls -->
+            <div class="bg-cardbg border border-bordercol rounded-2xl p-3.5 shadow-xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                <!-- Search Input -->
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" id="searchInput" oninput="renderAll()" placeholder="Search Haz's gear, lenses, batteries, or cables..." 
+                        class="w-full bg-darkbg border border-bordercol focus:border-amber-500 rounded-xl pl-9 pr-8 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none">
+                    <button onclick="clearSearch()" id="clearSearchBtn" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Filter Mode Switches -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex bg-darkbg p-1 rounded-xl border border-bordercol">
+                        <button onclick="setFilterMode('shoot')" id="filter-shoot" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-black transition">
+                            Shoot List Only
+                        </button>
+                        <button onclick="setFilterMode('all')" id="filter-all" class="px-3 py-1.5 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition">
+                            All Locker (<span id="totalLockerCount">0</span>)
+                        </button>
+                        <button onclick="setFilterMode('unpacked')" id="filter-unpacked" class="px-3 py-1.5 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition">
+                            Unpacked
+                        </button>
+                    </div>
+
+                    <button onclick="autoAddRequiredCables()" class="px-3 py-2 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-extrabold transition flex items-center gap-1.5 active:scale-95">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Auto-Include Required Cables</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Category Quick-Jump Pills -->
+            <div id="categoryPills" class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar"></div>
+
+            <!-- Gear Categories Checklist Grid -->
+            <div id="gearCategoriesContainer" class="space-y-5"></div>
+
+        </section>
+
+        <!-- ================= VIEW 2: CABLE & POWER MATRIX ================= -->
+        <section id="view-matrix" class="hidden space-y-5">
+            <div class="bg-cardbg border border-bordercol rounded-2xl p-4 sm:p-6 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-bordercol pb-4 mb-5">
+                    <div>
+                        <h2 class="text-lg font-black text-white flex items-center gap-2">
+                            <i class="fa-solid fa-diagram-project text-amber-400"></i>
+                            <span>Haz's Active Rig Signal, Power & Adapter Matrix</span>
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-1">
+                            Automatically maps every camera, lens, monitor, mic, and drive in your current shoot profile to the exact cables & batteries required.
+                        </p>
+                    </div>
+                    <button onclick="autoPackAllMissingDependencies()" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs rounded-xl shadow-lg shadow-amber-500/20 transition shrink-0">
+                        <i class="fa-solid fa-check-double mr-1.5"></i>Pack All Required Cables & Power
+                    </button>
+                </div>
+
+                <!-- Dynamic Signal Flow Cards -->
+                <div id="matrixCardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+
+            <!-- Reference Pinout & Filter Thread Cheat Sheet for Haz's Kit -->
+            <div class="bg-cardbg border border-bordercol rounded-2xl p-4 sm:p-6 shadow-xl">
+                <h3 class="text-sm font-extrabold uppercase tracking-wider text-amber-400 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Haz's Kit Quick Technical Reference</span>
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                    <div class="bg-darkbg border border-bordercol rounded-xl p-3.5">
+                        <div class="font-extrabold text-white mb-1"><i class="fa-solid fa-camera text-amber-400 mr-1.5"></i>BMPCC 6K Pro I/O</div>
+                        <ul class="text-gray-400 space-y-1 mt-2">
+                            <li>• <span class="text-gray-200 font-semibold">Lens Mount:</span> Native Canon EF</li>
+                            <li>• <span class="text-gray-200 font-semibold">DC Input:</span> 12V 2-Pin Locking Weipu</li>
+                            <li>• <span class="text-gray-200 font-semibold">Internal Batt:</span> Sony NP-F570</li>
+                            <li>• <span class="text-gray-200 font-semibold">Video Out:</span> Full-Size HDMI Type-A</li>
+                            <li>• <span class="text-gray-200 font-semibold">Audio In:</span> 2x Mini-XLR (48V) + 3.5mm</li>
+                        </ul>
+                    </div>
+                    <div class="bg-darkbg border border-bordercol rounded-xl p-3.5">
+                        <div class="font-extrabold text-white mb-1"><i class="fa-solid fa-camera-retro text-amber-400 mr-1.5"></i>Canon EOS R6 Mark II I/O</div>
+                        <ul class="text-gray-400 space-y-1 mt-2">
+                            <li>• <span class="text-gray-200 font-semibold">Lens Mount:</span> RF (Needs EF-EOS R Adapter!)</li>
+                            <li>• <span class="text-gray-200 font-semibold">Battery:</span> LP-E6NH / LP-E6</li>
+                            <li>• <span class="text-gray-200 font-semibold">Video Out:</span> Micro-HDMI (Type-D)</li>
+                            <li>• <span class="text-gray-200 font-semibold">Media:</span> Dual UHS-II SD (V60/V30)</li>
+                            <li>• <span class="text-gray-200 font-semibold">Audio In:</span> 3.5mm TRS Stereo Mic</li>
+                        </ul>
+                    </div>
+                    <div class="bg-darkbg border border-bordercol rounded-xl p-3.5">
+                        <div class="font-extrabold text-white mb-1"><i class="fa-solid fa-circle-dot text-amber-400 mr-1.5"></i>Lens Filter Threads (ND4-32)</div>
+                        <ul class="text-gray-400 space-y-1 mt-2">
+                            <li>• <span class="text-gray-200 font-semibold">Neewer ND4-32:</span> 77mm Diameter</li>
+                            <li>• <span class="text-emerald-400 font-semibold">EF 17-55mm f/2.8:</span> 77mm (Direct Fit)</li>
+                            <li>• <span class="text-emerald-400 font-semibold">EF 24-105mm f/4L:</span> 77mm (Direct Fit)</li>
+                            <li>• <span class="text-amber-400 font-semibold">EF 70-300mm IS:</span> 58mm (Needs 58-77mm Step-Up Ring)</li>
+                        </ul>
+                    </div>
+                    <div class="bg-darkbg border border-bordercol rounded-xl p-3.5">
+                        <div class="font-extrabold text-white mb-1"><i class="fa-solid fa-plane-up text-amber-400 mr-1.5"></i>Battery & Flight Notes</div>
+                        <ul class="text-gray-400 space-y-1 mt-2">
+                            <li>• <span class="text-red-400 font-semibold">Hawk-Woods VL-175HP:</span> 175Wh (Over 160Wh IATA limit — airline approval req.)</li>
+                            <li>• <span class="text-gray-200 font-semibold">Neewer F100 7":</span> Uses 1x NP-F570</li>
+                            <li>• <span class="text-gray-200 font-semibold">Rode NT1A / STC-1:</span> Require 48V Phantom Power</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 3: MANIFEST & EXPORT ================= -->
+        <section id="view-summary" class="hidden space-y-5">
+            <div class="bg-cardbg border border-bordercol rounded-2xl p-4 sm:p-6 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="text-lg font-black text-white flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-list text-amber-400"></i>
+                            <span>Pre-Flight & Wrap Sheet Manifest</span>
+                        </h2>
+                        <p class="text-xs text-gray-400">Copy this formatted camera car / production sheet to your clipboard or notes app.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="copyManifestToClipboard()" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs rounded-xl shadow-lg shadow-amber-500/20 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-copy"></i>
+                            <span>Copy Text Manifest</span>
+                        </button>
+                    </div>
+                </div>
+                <pre id="manifestTextOutput" class="bg-darkbg border border-bordercol rounded-xl p-4 text-xs mono text-gray-200 overflow-x-auto whitespace-pre-wrap leading-relaxed"></pre>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================= STICKY BOTTOM WEIGHT & PRE-FLIGHT PROGRESS BAR ================= -->
+    <footer class="fixed bottom-0 left-0 right-0 z-40 bg-cardbg/95 backdrop-blur-md border-t border-bordercol px-3 sm:px-6 py-3 shadow-2xl">
+        <div class="max-w-6xl mx-auto flex flex-col gap-2">
+            <!-- Top Row: Packed Counter, Weight Meter, and Quick Pack All -->
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <!-- Packed Count -->
+                <div class="flex items-center gap-2.5">
+                    <div id="footerStatusIcon" class="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-400 flex items-center justify-center font-black text-sm">
+                        <i class="fa-solid fa-suitcase-rolling"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs uppercase tracking-wider font-extrabold text-gray-400">Packed Status:</span>
+                            <span id="footerPackedCount" class="text-sm sm:text-base font-black mono text-white">0 / 0 Items</span>
+                        </div>
+                        <div id="footerMissingWarning" class="text-[11px] font-semibold text-gray-400">
+                            Tap items as they go into your Pelican case
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weight Calculator Readout -->
+                <div class="flex items-center gap-3 ml-auto">
+                    <div class="text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <span class="text-xs uppercase tracking-wider font-extrabold text-gray-400">Packed Weight:</span>
+                            <span id="footerPackedWeight" class="text-sm sm:text-base font-black mono text-emerald-400">0.00 kg</span>
+                            <span class="text-xs mono text-gray-500">/ <span id="footerShootWeight">0.00 kg</span> rig</span>
+                        </div>
+                        <div id="weightLimitBadge" class="text-[11px] font-bold text-emerald-400">
+                            <i class="fa-solid fa-plane-circle-check mr-1"></i>Under 20kg Carry-On Limit
+                        </div>
+                    </div>
+
+                    <button onclick="packAllShootItems()" class="px-3.5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl transition shadow-lg shadow-emerald-500/20 active:scale-95 shrink-0">
+                        <i class="fa-solid fa-check-double mr-1"></i>Pack All
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dual Progress Bar (Weight Limit & Pack Completion) -->
+            <div class="w-full bg-darkbg h-2.5 rounded-full overflow-hidden border border-bordercol relative">
+                <div id="weightProgressBar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                <!-- 20kg Carry-on Marker (at 50% of 40kg scale) -->
+                <div class="absolute top-0 bottom-0 left-[50%] w-0.5 bg-amber-400/70" title="20kg Carry-On Limit"></div>
+                <!-- 30kg Checked Marker (at 75% of 40kg scale) -->
+                <div class="absolute top-0 bottom-0 left-[75%] w-0.5 bg-red-500/80" title="30kg Checked Bag Limit"></div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= MODAL: ADD CUSTOM GEAR ITEM ================= -->
+    <div id="addItemModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-cardbg border border-bordercol rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-bordercol pb-3">
+                <h3 class="text-base font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-amber-400"></i>
+                    <span>Add Gear or Cable to Haz's Locker</span>
+                </h3>
+                <button onclick="closeAddItemModal()" class="text-gray-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="addItemForm" onsubmit="handleAddCustomItem(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Item Name</label>
+                    <input type="text" id="newItemName" required placeholder="e.g., Canon EF 50mm f/1.8 STM or SDI Cable" 
+                        class="w-full bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 text-sm text-white focus:border-amber-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Category</label>
+                        <select id="newItemCat" class="w-full bg-darkbg border border-bordercol rounded-xl px-3 py-2.5 text-sm text-white focus:border-amber-500 focus:outline-none">
+                            <option value="Cameras">Cameras</option>
+                            <option value="Lenses">Lenses</option>
+                            <option value="Support & Gimbal">Support & Gimbal</option>
+                            <option value="Monitors">Monitors</option>
+                            <option value="Audio">Audio</option>
+                            <option value="Aerial">Aerial</option>
+                            <option value="Power & Batteries">Power & Batteries</option>
+                            <option value="Storage">Storage</option>
+                            <option value="Accessories & Tools">Accessories & Tools</option>
+                            <option value="Cables & Adapters">Cables & Adapters</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Weight (kg)</label>
+                        <input type="number" id="newItemWeight" step="0.01" min="0.01" max="50" value="0.25" required
+                            class="w-full bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 text-sm text-white mono focus:border-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Notes / Required Cable Reminder</label>
+                    <input type="text" id="newItemNote" placeholder="e.g., 77mm thread, requires D-Tap power"
+                        class="w-full bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 text-sm text-white focus:border-amber-500 focus:outline-none">
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeAddItemModal()" class="px-4 py-2.5 rounded-xl bg-gray-800 text-gray-300 text-xs font-bold">Cancel</button>
+                    <button type="submit" class="px-4 py-2.5 rounded-xl bg-amber-500 text-black text-xs font-extrabold shadow-lg shadow-amber-500/20">Save to Kit List</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: WRAP / RESET OPTIONS ================= -->
+    <div id="resetModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-cardbg border border-bordercol rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-bordercol pb-3">
+                <h3 class="text-base font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-left text-amber-400"></i>
+                    <span>Wrap Day & Reset Actions</span>
+                </h3>
+                <button onclick="closeResetMenu()" class="text-gray-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-gray-300 leading-relaxed">
+                Choose how you want to reset your checklist for wrap-out or your next shoot prep:
+            </p>
+
+            <div class="space-y-2.5">
+                <button onclick="unpackAllItems(); closeResetMenu();" class="w-full p-3.5 rounded-xl bg-darkbg hover:bg-gray-800 border border-bordercol text-left transition flex items-center justify-between">
+                    <div>
+                        <div class="text-sm font-extrabold text-amber-400">1. Uncheck All Packed Boxes (Keep Shoot Profile)</div>
+                        <div class="text-xs text-gray-400 mt-0.5">Ideal for Wrap Check: unchecks packed status so you can check items back into the van.</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-gray-500"></i>
+                </button>
+
+                <button onclick="restoreFactoryHazKit(); closeResetMenu();" class="w-full p-3.5 rounded-xl bg-darkbg hover:bg-red-950/40 border border-bordercol hover:border-red-500/40 text-left transition flex items-center justify-between">
+                    <div>
+                        <div class="text-sm font-extrabold text-red-400">2. Restore Original Haz's Kit List (21/07/2026)</div>
+                        <div class="text-xs text-gray-400 mt-0.5">Resets all default gear items, weights, and cable links to factory defaults.</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-gray-500"></i>
+                </button>
+            </div>
+
+            <div class="flex justify-end pt-1">
+                <button onclick="closeResetMenu()" class="px-4 py-2 rounded-xl bg-gray-800 text-gray-300 text-xs font-bold">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastBanner" class="fixed top-20 right-4 z-50 hidden bg-emerald-500 text-black font-extrabold text-xs px-4 py-3 rounded-xl shadow-2xl items-center gap-2 transition-all">
+        <i class="fa-solid fa-circle-check text-sm"></i>
+        <span id="toastMessage">Saved!</span>
+    </div>
+
+    <!-- ================= APPLICATION LOGIC ================= -->
+    <script>
+        const STORAGE_KEY = 'haz_kitbuilder_2026_v2';
+        const CUSTOM_PROFILE_KEY = 'haz_kitbuilder_custom_profile_v2';
+
+        // Master Category Order & Icons
+        const CATEGORY_META = {
+            'Cameras': { icon: 'fa-video', color: 'text-amber-400' },
+            'Lenses': { icon: 'fa-circle-dot', color: 'text-sky-400' },
+            'Support & Gimbal': { icon: 'fa-up-down-left-right', color: 'text-purple-400' },
+            'Monitors': { icon: 'fa-tv', color: 'text-emerald-400' },
+            'Audio': { icon: 'fa-microphone-lines', color: 'text-pink-400' },
+            'Aerial': { icon: 'fa-helicopter', color: 'text-cyan-400' },
+            'Power & Batteries': { icon: 'fa-battery-full', color: 'text-yellow-400' },
+            'Storage': { icon: 'fa-hard-drive', color: 'text-indigo-400' },
+            'Accessories & Tools': { icon: 'fa-screwdriver-wrench', color: 'text-orange-400' },
+            'Cables & Adapters': { icon: 'fa-plug-circle-bolt', color: 'text-teal-400' }
+        };
+
+        // Haz's Complete Master Kit List (21/07/2026) + Required Cables & Adapters
+        const DEFAULT_HAZ_KIT = [
+            // --- CAMERAS ---
+            {
+                id: 'cam-bmpcc6k',
+                name: 'Blackmagic Pocket Cinema Camera 6K Pro',
+                category: 'Cameras',
+                weight: 1.24,
+                inShoot: true,
+                packed: false,
+                note: 'Super 35 EF Mount • Internal ND (2/4/6 stops) • 2x Mini-XLR • Full HDMI • 12V Weipu / NP-F570',
+                requires: ['cab-usbc-ssd', 'cab-chargers']
+            },
+            {
+                id: 'cam-r6m2',
+                name: 'Canon EOS R6 Mark II',
+                category: 'Cameras',
+                weight: 0.67,
+                inShoot: true,
+                packed: false,
+                note: 'Full Frame RF Mount • Needs EF-EOS R Adapter for EF Glass • Dual SD • Micro-HDMI • LP-E6NH',
+                requires: ['cab-ef-rf', 'pwr-lpe6nh', 'sto-v60', 'cab-chargers']
+            },
+
+            // --- LENSES ---
+            {
+                id: 'lens-17-55',
+                name: 'Canon EF 17-55mm f/2.8 IS USM (APS-C)',
+                category: 'Lenses',
+                weight: 0.65,
+                inShoot: true,
+                packed: false,
+                note: 'Fast S35 Standard Zoom • 77mm Filter Thread (Fits Neewer ND4-32 directly)',
+                requires: []
+            },
+            {
+                id: 'lens-70-300',
+                name: 'Canon EF 70-300mm f/4-5.6 IS USM',
+                category: 'Lenses',
+                weight: 0.63,
+                inShoot: true,
+                packed: false,
+                note: 'Telephoto Zoom • 58mm Filter Thread (Requires 58-77mm Step-Up Ring for 77mm ND)',
+                requires: ['cab-stepup']
+            },
+            {
+                id: 'lens-24-105',
+                name: 'Canon EF 24-105mm f/4L IS II USM (FF)',
+                category: 'Lenses',
+                weight: 0.79,
+                inShoot: true,
+                packed: false,
+                note: 'Full Frame L-Series Workhorse • 77mm Filter Thread (Fits Neewer ND4-32 directly)',
+                requires: []
+            },
+
+            // --- SUPPORT & GIMBAL ---
+            {
+                id: 'sup-mvg460',
+                name: 'Manfrotto MVG460 Gimbal (with Follow-Focus Addon)',
+                category: 'Support & Gimbal',
+                weight: 1.65,
+                inShoot: true,
+                packed: false,
+                note: '3-Axis Motorized Gimbal (4.6kg payload) + Quick-Release Plate & Follow-Focus Motor',
+                requires: ['cab-mvg460', 'acc-srtool']
+            },
+            {
+                id: 'sup-tp37',
+                name: 'Neewer 74” TP37 Fluid-Head Tripod',
+                category: 'Support & Gimbal',
+                weight: 3.90,
+                inShoot: true,
+                packed: false,
+                note: '74-inch Heavy Duty Sticks + Fluid Drag Pan/Tilt Head + QR Plate',
+                requires: ['acc-srtool']
+            },
+            {
+                id: 'sup-cage',
+                name: 'BMPCC 6K Pro SmallRig Cage',
+                category: 'Support & Gimbal',
+                weight: 0.32,
+                inShoot: true,
+                packed: false,
+                note: 'Form-fitting cage for mounting Samsung T7 SSD Clamp, Monitor Arm & V-Lok Plate',
+                requires: ['acc-srtool']
+            },
+
+            // --- MONITORS ---
+            {
+                id: 'mon-f100',
+                name: 'Neewer F100 7" Field Monitor (Requires 1x NP-F570)',
+                category: 'Monitors',
+                weight: 0.38,
+                inShoot: true,
+                packed: false,
+                note: '7-inch High-Bright Field Monitor + Sunhood • Powered via NP-F570 • Full HDMI In',
+                requires: ['pwr-npf-gen', 'cab-mon-arm']
+            },
+
+            // --- AUDIO ---
+            {
+                id: 'aud-dr07p',
+                name: 'TASCAM DR07P Portable Recorder',
+                category: 'Audio',
+                weight: 0.19,
+                inShoot: true,
+                packed: false,
+                note: 'Adjustable AB/XY Stereo Handheld Recorder • Uses MicroSD/SD & 3.5mm Line-Out',
+                requires: ['sto-v30', 'cab-trs35']
+            },
+            {
+                id: 'aud-m650',
+                name: 'AnkerWork M650 Wireless Lavalier Microphone Set + TX',
+                category: 'Audio',
+                weight: 0.20,
+                inShoot: true,
+                packed: false,
+                note: 'Dual Channel Wireless Lavs + Charging Case + RX (3.5mm TRS & USB-C)',
+                requires: ['cab-trs35', 'cab-usbc-multi']
+            },
+            {
+                id: 'aud-nt1a',
+                name: 'Rode NT1A Condenser Microphone',
+                category: 'Audio',
+                weight: 0.33,
+                inShoot: true,
+                packed: false,
+                note: 'Large-Diaphragm Studio/VO Condenser • Requires 48V Phantom Power & XLR Cable',
+                requires: ['cab-xlr', 'cab-minixlr']
+            },
+            {
+                id: 'aud-sm57',
+                name: 'Shure SM57 Dynamic Microphone',
+                category: 'Audio',
+                weight: 0.28,
+                inShoot: true,
+                packed: false,
+                note: 'Cardioid Dynamic Mic (No Phantom Power req.) • Requires 3-Pin XLR Cable',
+                requires: ['cab-xlr', 'cab-minixlr']
+            },
+            {
+                id: 'aud-stc1',
+                name: 'Sontronics STC-1 Small Diaphragm Condenser Mic',
+                category: 'Audio',
+                weight: 0.16,
+                inShoot: true,
+                packed: false,
+                note: 'Pencil Condenser for Indoor Boom / Dialogue • Requires 48V Phantom Power & XLR Cable',
+                requires: ['cab-xlr', 'cab-minixlr']
+            },
+            {
+                id: 'aud-shotgun',
+                name: '3.5mm Shotgun Microphone',
+                category: 'Audio',
+                weight: 0.12,
+                inShoot: true,
+                packed: false,
+                note: 'On-Camera Cold-Shoe Directional Mic • Connects via 3.5mm TRS Patch Cable',
+                requires: ['cab-trs35']
+            },
+
+            // --- AERIAL ---
+            {
+                id: 'aer-mini4',
+                name: 'DJI Mini 4 Pro (with DJI RC-2)',
+                category: 'Aerial',
+                weight: 0.75,
+                inShoot: true,
+                packed: false,
+                note: 'Sub-249g 4K/60 HDR Drone + DJI RC-2 Built-in Screen Controller + Spare Props',
+                requires: ['cab-usbc-multi', 'sto-v30']
+            },
+
+            // --- POWER & BATTERIES ---
+            {
+                id: 'pwr-vlok175',
+                name: '1x Hawk-Woods VL-175HP V-Lok Battery (175Wh)',
+                category: 'Power & Batteries',
+                weight: 1.05,
+                inShoot: true,
+                packed: false,
+                note: '⚠️ 175Wh High-Load V-Mount Battery (>160Wh IATA Flight Limit!) • Powers 6K Pro all day',
+                requires: ['cab-weipu-dtap', 'cab-vlok-chg'],
+                flightWarning: true
+            },
+            {
+                id: 'pwr-lpe6nh',
+                name: '3x NEEWER LP-E6NH Batteries',
+                category: 'Power & Batteries',
+                weight: 0.24,
+                inShoot: true,
+                packed: false,
+                note: 'High-Capacity 2250mAh Batteries for Canon EOS R6 Mark II',
+                requires: ['cab-chargers']
+            },
+            {
+                id: 'pwr-lpe6',
+                name: '1x Canon LP-E6 Battery',
+                category: 'Power & Batteries',
+                weight: 0.08,
+                inShoot: true,
+                packed: false,
+                note: 'OEM Backup Battery for Canon EOS R6 Mark II',
+                requires: ['cab-chargers']
+            },
+            {
+                id: 'pwr-npf-bm',
+                name: '2x Blackmagic NP-F570 Batteries',
+                category: 'Power & Batteries',
+                weight: 0.30,
+                inShoot: true,
+                packed: false,
+                note: 'Internal Batteries for BMPCC 6K Pro (or hot-swap backup for V-Lok)',
+                requires: ['cab-chargers']
+            },
+            {
+                id: 'pwr-npf-gen',
+                name: '3x Generic NP-F570 Batteries',
+                category: 'Power & Batteries',
+                weight: 0.45,
+                inShoot: true,
+                packed: false,
+                note: 'Dedicated Batteries for Neewer F100 7" Field Monitor & 6K Pro spares',
+                requires: ['cab-chargers']
+            },
+
+            // --- STORAGE ---
+            {
+                id: 'sto-t7',
+                name: 'Samsung T7 Shield 1TB SSD (USB-C)',
+                category: 'Storage',
+                weight: 0.10,
+                inShoot: true,
+                packed: false,
+                note: 'Rugged High-Speed SSD for BMPCC 6K Pro BRAW Recording',
+                requires: ['cab-usbc-ssd']
+            },
+            {
+                id: 'sto-wd2tb',
+                name: 'WD Blue 2TB Passport HDD (USB-C)',
+                category: 'Storage',
+                weight: 0.15,
+                inShoot: true,
+                packed: false,
+                note: 'DIT Offload & Backup Portable Hard Drive',
+                requires: ['cab-usbc-multi']
+            },
+            {
+                id: 'sto-v60',
+                name: 'Sony V60 128GB SD Card',
+                category: 'Storage',
+                weight: 0.02,
+                inShoot: true,
+                packed: false,
+                note: 'Fast UHS-II V60 Card for Canon EOS R6 Mark II 4K60 10-bit C-Log3',
+                requires: []
+            },
+            {
+                id: 'sto-v30',
+                name: '4x V30 SD Cards',
+                category: 'Storage',
+                weight: 0.04,
+                inShoot: true,
+                packed: false,
+                note: 'Cards for TASCAM DR07P, R6 II Slot 2 Backup & DJI Mini 4 Pro',
+                requires: []
+            },
+
+            // --- ACCESSORIES & TOOLS ---
+            {
+                id: 'acc-nd77',
+                name: 'Neewer ND4-32 Neutral Density Filter (77mm Diameter)',
+                category: 'Accessories & Tools',
+                weight: 0.08,
+                inShoot: true,
+                packed: false,
+                note: 'Variable ND (2 to 5 Stops) • Fits EF 17-55mm & EF 24-105mm directly',
+                requires: []
+            },
+            {
+                id: 'acc-leica',
+                name: 'LEICA Lens Cleaning Kit',
+                category: 'Accessories & Tools',
+                weight: 0.12,
+                inShoot: true,
+                packed: false,
+                note: 'Blower, Optical Brush, Fluid & Microfiber Cloths',
+                requires: []
+            },
+            {
+                id: 'acc-srtool',
+                name: 'SmallRig Multi-Tool',
+                category: 'Accessories & Tools',
+                weight: 0.10,
+                inShoot: true,
+                packed: false,
+                note: 'Fold-out Allen Keys (1/4"-20, 3/8"-16, M2.5, M3, M4) & Flathead',
+                requires: []
+            },
+            {
+                id: 'acc-gentool',
+                name: 'Generic Multi-Tool',
+                category: 'Accessories & Tools',
+                weight: 0.12,
+                inShoot: true,
+                packed: false,
+                note: 'Pliers, Wire Cutters, Screwdrivers & Utility Blade',
+                requires: []
+            },
+
+            // --- CABLES, ADAPTERS & CHARGERS (Auto-linked to Haz's Kit) ---
+            {
+                id: 'cab-ef-rf',
+                name: 'Canon EF-EOS R Mount Adapter',
+                category: 'Cables & Adapters',
+                weight: 0.11,
+                inShoot: true,
+                packed: false,
+                note: 'REQUIRED to mount Haz’s EF 17-55, 70-300 & 24-105 lenses onto Canon EOS R6 Mark II',
+                isCable: true
+            },
+            {
+                id: 'cab-weipu-dtap',
+                name: '2-Pin Weipu to D-Tap Power Cable + V-Lok Plate',
+                category: 'Cables & Adapters',
+                weight: 0.22,
+                inShoot: true,
+                packed: false,
+                note: 'REQUIRED to power BMPCC 6K Pro (12V locking input) from Hawk-Woods VL-175HP V-Lok',
+                isCable: true
+            },
+            {
+                id: 'cab-usbc-ssd',
+                name: 'High-Speed USB-C 3.2 Data Cable + T7 SSD Clamp',
+                category: 'Cables & Adapters',
+                weight: 0.08,
+                inShoot: true,
+                packed: false,
+                note: 'REQUIRED to record BRAW from BMPCC 6K Pro to Samsung T7 Shield 1TB SSD',
+                isCable: true
+            },
+            {
+                id: 'cab-hdmi-full',
+                name: 'Full HDMI to Full HDMI Coiled Cable',
+                category: 'Cables & Adapters',
+                weight: 0.09,
+                inShoot: true,
+                packed: false,
+                note: 'REQUIRED for video feed from BMPCC 6K Pro to Neewer F100 7" Monitor',
+                isCable: true
+            },
+            {
+                id: 'cab-hdmi-micro',
+                name: 'Micro-HDMI to Full HDMI Cable',
+                category: 'Cables & Adapters',
+                weight: 0.08,
+                inShoot: true,
+                packed: false,
+                note: 'REQUIRED for video feed from Canon EOS R6 Mark II to Neewer F100 7" Monitor',
+                isCable: true
+            },
+            {
+                id: 'cab-minixlr',
+                name: 'Mini-XLR to Standard 3-Pin XLR Adapter Cables (x2)',
+                category: 'Cables & Adapters',
+                weight: 0.07,
+                inShoot: true,
+                packed: false,
+                note: 'REQUIRED to connect XLR mics (Rode NT1A, SM57, STC-1) into BMPCC 6K Pro Mini-XLR inputs',
+                isCable: true
+            },
+            {
+                id: 'cab-xlr',
+                name: '3-Pin XLR Microphone Cables (x2)',
+                category: 'Cables & Adapters',
+                weight: 0.35,
+                inShoot: true,
+                packed: false,
+                note: 'REQUIRED for Rode NT1A, Shure SM57 & Sontronics STC-1 microphones',
+                isCable: true
+            },
+            {
+                id: 'cab-trs35',
+                name: '3.5mm TRS Patch Cables (Coiled)',
+                category: 'Cables & Adapters',
+                weight: 0.04,
+                inShoot: true,
+                packed: false,
+                note: 'REQUIRED for 3.5mm Shotgun Mic, AnkerWork M650 RX & TASCAM DR07P Line-Out to Camera',
+                isCable: true
+            },
+            {
+                id: 'cab-mvg460',
+                name: 'Manfrotto MVG460 USB-C Camera Control & Follow-Focus Cables',
+                category: 'Cables & Adapters',
+                weight: 0.09,
+                inShoot: true,
+                packed: false,
+                note: 'REQUIRED for Manfrotto MVG460 follow-focus motor power & camera record trigger',
+                isCable: true
+            },
+            {
+                id: 'cab-usbc-multi',
+                name: 'USB-C to USB-C Data & PD Charging Cables (x2)',
+                category: 'Cables & Adapters',
+                weight: 0.10,
+                inShoot: true,
+                packed: false,
+                note: 'REQUIRED for WD Blue 2TB HDD, DJI Mini 4 Pro + RC-2 charging & AnkerWork M650 case',
+                isCable: true
+            },
+            {
+                id: 'cab-stepup',
+                name: '58mm to 77mm Step-Up Filter Ring',
+                category: 'Cables & Adapters',
+                weight: 0.03,
+                inShoot: true,
+                packed: false,
+                note: 'REQUIRED to mount Haz’s 77mm Neewer ND4-32 onto the 58mm Canon EF 70-300mm lens',
+                isCable: true
+            },
+            {
+                id: 'cab-mon-arm',
+                name: 'Monitor Magic Arm / Cold-Shoe Tilt Mount',
+                category: 'Cables & Adapters',
+                weight: 0.14,
+                inShoot: true,
+                packed: false,
+                note: 'REQUIRED to mount Neewer F100 7" Monitor onto SmallRig Cage or Camera Hot Shoe',
+                isCable: true
+            },
+            {
+                id: 'cab-chargers',
+                name: 'Dual LP-E6NH & Dual NP-F570 Battery Chargers + Mains Leads',
+                category: 'Cables & Adapters',
+                weight: 0.35,
+                inShoot: true,
+                packed: false,
+                note: 'Charging station for Canon LP-E6NH and Blackmagic/Monitor NP-F570 batteries',
+                isCable: true
+            },
+            {
+                id: 'cab-vlok-chg',
+                name: 'Hawk-Woods V-Lok D-Tap Mains Charger',
+                category: 'Cables & Adapters',
+                weight: 0.45,
+                inShoot: true,
+                packed: false,
+                note: 'Dedicated charger for Hawk-Woods VL-175HP 175Wh V-Lok battery',
+                isCable: true
+            }
+        ];
+
+        // Pre-configured Shoot Profiles tailored to Haz's exact kit
+        const SHOOT_PROFILES = {
+            all: {
+                name: 'Full Master Kit (All Items)',
+                items: DEFAULT_HAZ_KIT.map(i => i.id)
+            },
+            doc: {
+                name: 'Minimalist Doc (R6 Mk II Run & Gun)',
+                items: [
+                    'cam-r6m2', 'lens-24-105', 'lens-70-300',
+                    'aud-m650', 'aud-shotgun',
+                    'pwr-lpe6nh', 'pwr-lpe6',
+                    'sto-v60', 'sto-v30',
+                    'acc-nd77', 'acc-leica', 'acc-srtool',
+                    'cab-ef-rf', 'cab-trs35', 'cab-stepup', 'cab-usbc-multi', 'cab-chargers'
+                ]
+            },
+            cinema: {
+                name: 'Heavy Commercial (BMPCC 6K Pro Rig)',
+                items: [
+                    'cam-bmpcc6k', 'sup-cage', 'sup-tp37',
+                    'lens-17-55', 'lens-24-105', 'lens-70-300',
+                    'mon-f100',
+                    'aud-stc1', 'aud-m650',
+                    'pwr-vlok175', 'pwr-npf-bm', 'pwr-npf-gen',
+                    'sto-t7', 'sto-wd2tb',
+                    'acc-nd77', 'acc-leica', 'acc-srtool', 'acc-gentool',
+                    'cab-weipu-dtap', 'cab-usbc-ssd', 'cab-hdmi-full', 'cab-mon-arm',
+                    'cab-minixlr', 'cab-xlr', 'cab-trs35', 'cab-stepup', 'cab-chargers', 'cab-vlok-chg'
+                ]
+            },
+            gimbal: {
+                name: 'Gimbal & Aerial Package',
+                items: [
+                    'cam-r6m2', 'lens-17-55', 'lens-24-105',
+                    'sup-mvg460', 'aer-mini4',
+                    'aud-m650',
+                    'pwr-lpe6nh', 'pwr-lpe6',
+                    'sto-v60', 'sto-v30',
+                    'acc-nd77', 'acc-leica', 'acc-srtool',
+                    'cab-ef-rf', 'cab-mvg460', 'cab-usbc-multi', 'cab-trs35', 'cab-chargers'
+                ]
+            },
+            interview: {
+                name: '2-Cam Interview & Audio Suite',
+                items: [
+                    'cam-bmpcc6k', 'cam-r6m2', 'sup-cage', 'sup-tp37',
+                    'lens-17-55', 'lens-24-105',
+                    'mon-f100',
+                    'aud-dr07p', 'aud-m650', 'aud-nt1a', 'aud-sm57', 'aud-stc1',
+                    'pwr-vlok175', 'pwr-lpe6nh', 'pwr-npf-bm', 'pwr-npf-gen',
+                    'sto-t7', 'sto-v60', 'sto-v30', 'sto-wd2tb',
+                    'acc-nd77', 'acc-leica', 'acc-srtool',
+                    'cab-ef-rf', 'cab-weipu-dtap', 'cab-usbc-ssd', 'cab-hdmi-full',
+                    'cab-mon-arm', 'cab-minixlr', 'cab-xlr', 'cab-trs35', 'cab-chargers', 'cab-vlok-chg'
+                ]
+            }
+        };
+
+        // App State
+        let gearList = [];
+        let activeProfile = 'all';
+        let filterMode = 'shoot'; // 'shoot' | 'all' | 'unpacked'
+        let activeCategoryFilter = 'ALL';
+        let currentView = 'checklist';
+
+        // Initialize on DOM load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            renderAll();
+        });
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed.gearList) && parsed.gearList.length > 0) {
+                        gearList = parsed.gearList;
+                        activeProfile = parsed.activeProfile || 'all';
+                        filterMode = parsed.filterMode || 'shoot';
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to read localStorage:', e);
+            }
+            gearList = JSON.parse(JSON.stringify(DEFAULT_HAZ_KIT));
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    gearList,
+                    activeProfile,
+                    filterMode
+                }));
+            } catch (e) {
+                console.error('Failed to save state:', e);
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastBanner');
+            const text = document.getElementById('toastMessage');
+            text.textContent = msg;
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 2400);
+        }
+
+        // ================= SMART DEPENDENCY ENGINE =================
+        // Evaluates currently selected shoot gear and determines all required cables, adapters, power & media
+        function evaluateSmartDependencies() {
+            const byId = {};
+            gearList.forEach(item => { byId[item.id] = item; });
+
+            const isSelected = (id) => byId[id] && byId[id].inShoot;
+            const isPacked = (id) => byId[id] && byId[id].inShoot && byId[id].packed;
+
+            const alerts = [];
+            const missingItemIds = new Set();
+
+            const hasAnyEFLens = isSelected('lens-17-55') || isSelected('lens-70-300') || isSelected('lens-24-105');
+
+            // 1. Canon R6 Mark II + EF Lenses -> Needs Canon EF-EOS R Mount Adapter
+            if (isSelected('cam-r6m2') && hasAnyEFLens) {
+                if (!isSelected('cab-ef-rf')) {
+                    alerts.push({
+                        level: 'critical',
+                        title: 'Missing Canon EF-EOS R Mount Adapter!',
+                        desc: 'Canon EOS R6 Mark II (RF mount) is selected with EF lenses, but the EF-EOS R Mount Adapter is not in your shoot list.',
+                        fixIds: ['cab-ef-rf']
+                    });
+                    missingItemIds.add('cab-ef-rf');
+                }
+            }
+
+            // 2. Canon R6 Mark II -> Needs LP-E6NH/LP-E6 Battery & SD Card
+            if (isSelected('cam-r6m2')) {
+                if (!isSelected('pwr-lpe6nh') && !isSelected('pwr-lpe6')) {
+                    alerts.push({
+                        level: 'critical',
+                        title: 'No Batteries Selected for Canon R6 Mark II',
+                        desc: 'Add 3x NEEWER LP-E6NH or 1x Canon LP-E6 battery.',
+                        fixIds: ['pwr-lpe6nh']
+                    });
+                    missingItemIds.add('pwr-lpe6nh');
+                }
+                if (!isSelected('sto-v60') && !isSelected('sto-v30')) {
+                    alerts.push({
+                        level: 'critical',
+                        title: 'No SD Card Selected for Canon R6 Mark II',
+                        desc: 'Add the Sony V60 128GB SD Card or 4x V30 SD Cards.',
+                        fixIds: ['sto-v60']
+                    });
+                    missingItemIds.add('sto-v60');
+                }
+            }
+
+            // 3. BMPCC 6K Pro + V-Lok 175Wh -> Needs 2-Pin Weipu to D-Tap Cable
+            if (isSelected('cam-bmpcc6k') && isSelected('pwr-vlok175')) {
+                if (!isSelected('cab-weipu-dtap')) {
+                    alerts.push({
+                        level: 'critical',
+                        title: 'Missing 2-Pin Weipu to D-Tap Cable for 6K Pro + V-Lok',
+                        desc: 'Hawk-Woods VL-175HP V-Lok requires the 2-Pin Weipu to D-Tap cable & V-Lok plate to power the BMPCC 6K Pro.',
+                        fixIds: ['cab-weipu-dtap']
+                    });
+                    missingItemIds.add('cab-weipu-dtap');
+                }
+            }
+
+            // 4. BMPCC 6K Pro + Samsung T7 SSD -> Needs USB-C 3.2 Cable + SmallRig Cage
+            if (isSelected('cam-bmpcc6k') && isSelected('sto-t7')) {
+                const missing = [];
+                if (!isSelected('cab-usbc-ssd')) missing.push('cab-usbc-ssd');
+                if (!isSelected('sup-cage')) missing.push('sup-cage');
+                if (missing.length > 0) {
+                    alerts.push({
+                        level: 'critical',
+                        title: 'Missing T7 SSD USB-C 3.2 Data Cable or Cage',
+                        desc: 'Recording BRAW to the Samsung T7 Shield 1TB SSD requires the High-Speed USB-C 3.2 Cable + SSD Clamp and SmallRig Cage.',
+                        fixIds: missing
+                    });
+                    missing.forEach(id => missingItemIds.add(id));
+                }
+            }
+
+            // 5. Neewer F100 7" Monitor -> Needs NP-F570 Battery + HDMI Cable matching selected Camera + Magic Arm
+            if (isSelected('mon-f100')) {
+                if (!isSelected('pwr-npf-gen') && !isSelected('pwr-npf-bm')) {
+                    alerts.push({
+                        level: 'critical',
+                        title: 'Neewer F100 7" Monitor Has No NP-F570 Battery!',
+                        desc: 'The Neewer F100 requires at least 1x NP-F570 battery.',
+                        fixIds: ['pwr-npf-gen']
+                    });
+                    missingItemIds.add('pwr-npf-gen');
+                }
+                if (isSelected('cam-bmpcc6k') && !isSelected('cab-hdmi-full')) {
+                    alerts.push({
+                        level: 'critical',
+                        title: 'Missing Full HDMI Cable (6K Pro → F100 Monitor)',
+                        desc: 'BMPCC 6K Pro uses a Full-Size HDMI port to feed the Neewer F100 7" Monitor.',
+                        fixIds: ['cab-hdmi-full']
+                    });
+                    missingItemIds.add('cab-hdmi-full');
+                }
+                if (isSelected('cam-r6m2') && !isSelected('cab-hdmi-micro')) {
+                    alerts.push({
+                        level: 'critical',
+                        title: 'Missing Micro-HDMI to Full HDMI Cable (R6 II → F100 Monitor)',
+                        desc: 'Canon EOS R6 Mark II uses a Micro-HDMI port to feed the Neewer F100 7" Monitor.',
+                        fixIds: ['cab-hdmi-micro']
+                    });
+                    missingItemIds.add('cab-hdmi-micro');
+                }
+                if (!isSelected('cab-mon-arm')) {
+                    alerts.push({
+                        level: 'warning',
+                        title: 'Missing Monitor Magic Arm / Cold-Shoe Mount',
+                        desc: 'Needed to mount the Neewer F100 7" Field Monitor onto your rig.',
+                        fixIds: ['cab-mon-arm']
+                    });
+                    missingItemIds.add('cab-mon-arm');
+                }
+            }
+
+            // 6. XLR Microphones (Rode NT1A, Shure SM57, Sontronics STC-1) -> Needs 3-Pin XLR Cable & Mini-XLR Adapter (for 6K Pro)
+            const hasXLRMic = isSelected('aud-nt1a') || isSelected('aud-sm57') || isSelected('aud-stc1');
+            if (hasXLRMic) {
+                if (!isSelected('cab-xlr')) {
+                    alerts.push({
+                        level: 'critical',
+                        title: 'Missing 3-Pin XLR Microphone Cables',
+                        desc: 'Rode NT1A, Shure SM57, or Sontronics STC-1 is selected without XLR cables.',
+                        fixIds: ['cab-xlr']
+                    });
+                    missingItemIds.add('cab-xlr');
+                }
+                if (isSelected('cam-bmpcc6k') && !isSelected('cab-minixlr')) {
+                    alerts.push({
+                        level: 'critical',
+                        title: 'Missing Mini-XLR to 3-Pin XLR Adapter (BMPCC 6K Pro)',
+                        desc: 'BMPCC 6K Pro requires the Mini-XLR to Standard XLR adapter for XLR microphones.',
+                        fixIds: ['cab-minixlr']
+                    });
+                    missingItemIds.add('cab-minixlr');
+                }
+            }
+
+            // 7. 3.5mm Audio Gear (Shotgun Mic / AnkerWork M650) -> Needs 3.5mm TRS Patch Cable
+            if ((isSelected('aud-shotgun') || isSelected('aud-m650')) && !isSelected('cab-trs35')) {
+                alerts.push({
+                    level: 'warning',
+                    title: 'Missing 3.5mm TRS Patch Cable',
+                    desc: 'Required to connect the 3.5mm Shotgun Mic or AnkerWork M650 Receiver into camera.',
+                    fixIds: ['cab-trs35']
+                });
+                missingItemIds.add('cab-trs35');
+            }
+
+            // 8. EF 70-300mm (58mm) + Neewer 77mm ND4-32 -> Needs 58-77mm Step-Up Ring
+            if (isSelected('lens-70-300') && isSelected('acc-nd77') && !isSelected('cab-stepup')) {
+                alerts.push({
+                    level: 'warning',
+                    title: 'Missing 58mm to 77mm Step-Up Ring',
+                    desc: 'Canon EF 70-300mm has a 58mm front thread; step-up ring required to fit your 77mm Neewer ND4-32.',
+                    fixIds: ['cab-stepup']
+                });
+                missingItemIds.add('cab-stepup');
+            }
+
+            // 9. Manfrotto MVG460 Gimbal -> Needs Gimbal Control & Follow-Focus Cables
+            if (isSelected('sup-mvg460') && !isSelected('cab-mvg460')) {
+                alerts.push({
+                    level: 'critical',
+                    title: 'Missing Manfrotto MVG460 Follow-Focus & USB-C Cables',
+                    desc: 'Required to power and control the MVG460 follow-focus addon.',
+                    fixIds: ['cab-mvg460']
+                });
+                missingItemIds.add('cab-mvg460');
+            }
+
+            // 10. Hawk-Woods VL-175HP (175Wh) Flight Advisory
+            if (isSelected('pwr-vlok175')) {
+                alerts.push({
+                    level: 'info',
+                    title: 'IATA Flight Advisory: Hawk-Woods VL-175HP is 175Wh',
+                    desc: '175Wh exceeds the 160Wh standard carry-on lithium battery limit. Airline approval is required if flying (max 2x 101–160Wh allowed standard).',
+                    fixIds: []
+                });
+            }
+
+            return { alerts, missingItemIds: Array.from(missingItemIds) };
+        }
+
+        // ================= ACTIONS & MUTATIONS =================
+        function toggleItemPacked(id) {
+            const item = gearList.find(i => i.id === id);
+            if (!item) return;
+            // If user taps pack on an item not yet in shoot, include it in shoot automatically
+            if (!item.inShoot) {
+                item.inShoot = true;
+                item.packed = true;
+            } else {
+                item.packed = !item.packed;
+            }
+            saveState();
+            renderAll();
+        }
+
+        function toggleItemInShoot(id, event) {
+            if (event) event.stopPropagation();
+            const item = gearList.find(i => i.id === id);
+            if (!item) return;
+            item.inShoot = !item.inShoot;
+            if (!item.inShoot) item.packed = false;
+            activeProfile = 'custom';
+            saveState();
+            renderAll();
+        }
+
+        function applyProfile(profileKey) {
+            if (profileKey === 'custom') {
+                const savedCustom = localStorage.getItem(CUSTOM_PROFILE_KEY);
+                if (!savedCustom) {
+                    showToast('No saved custom profile yet — toggle gear & tap "Save Custom"!');
+                    return;
+                }
+                const customIds = JSON.parse(savedCustom);
+                gearList.forEach(item => {
+                    item.inShoot = customIds.includes(item.id);
+                    if (!item.inShoot) item.packed = false;
+                });
+                activeProfile = 'custom';
+                saveState();
+                renderAll();
+                showToast('Loaded Saved Custom Profile');
+                return;
+            }
+
+            const prof = SHOOT_PROFILES[profileKey];
+            if (!prof) return;
+
+            gearList.forEach(item => {
+                if (profileKey === 'all') {
+                    item.inShoot = true;
+                } else {
+                    item.inShoot = prof.items.includes(item.id);
+                    if (!item.inShoot) item.packed = false;
+                }
+            });
+
+            activeProfile = profileKey;
+            saveState();
+            renderAll();
+            showToast(`Applied Profile: ${prof.name}`);
+        }
+
+        function saveCurrentAsCustomProfile() {
+            const selectedIds = gearList.filter(i => i.inShoot).map(i => i.id);
+            localStorage.setItem(CUSTOM_PROFILE_KEY, JSON.stringify(selectedIds));
+            activeProfile = 'custom';
+            saveState();
+            renderAll();
+            showToast(`Saved ${selectedIds.length} items to Custom Profile!`);
+        }
+
+        function fixSingleDependency(idsArray) {
+            idsArray.forEach(id => {
+                const item = gearList.find(i => i.id === id);
+                if (item) {
+                    item.inShoot = true;
+                }
+            });
+            saveState();
+            renderAll();
+            showToast('Added required cable/accessory to Shoot List!');
+        }
+
+        function autoAddRequiredCables() {
+            const { missingItemIds } = evaluateSmartDependencies();
+            // Also check direct item.requires links
+            const directRequired = new Set(missingItemIds);
+            gearList.filter(i => i.inShoot).forEach(item => {
+                if (Array.isArray(item.requires)) {
+                    item.requires.forEach(reqId => directRequired.add(reqId));
+                }
+            });
+
+            let addedCount = 0;
+            directRequired.forEach(id => {
+                const target = gearList.find(i => i.id === id);
+                if (target && !target.inShoot) {
+                    target.inShoot = true;
+                    addedCount++;
+                }
+            });
+
+            saveState();
+            renderAll();
+            if (addedCount > 0) {
+                showToast(`Auto-included ${addedCount} required cable/power item(s)!`);
+            } else {
+                showToast('All required cables & adapters are already in your Shoot List!');
+            }
+        }
+
+        function autoPackAllMissingDependencies() {
+            autoAddRequiredCables();
+            gearList.forEach(item => {
+                if (item.inShoot && (item.isCable || item.category === 'Cables & Adapters' || item.category === 'Power & Batteries')) {
+                    item.packed = true;
+                }
+            });
+            saveState();
+            renderAll();
+            showToast('All required cables, adapters & batteries marked PACKED!');
+        }
+
+        function packAllShootItems() {
+            const shootItems = gearList.filter(i => i.inShoot);
+            const allAlreadyPacked = shootItems.length > 0 && shootItems.every(i => i.packed);
+            shootItems.forEach(item => {
+                item.packed = !allAlreadyPacked;
+            });
+            saveState();
+            renderAll();
+            showToast(allAlreadyPacked ? 'Unchecked all shoot items' : 'All shoot items marked PACKED!');
+        }
+
+        function unpackAllItems() {
+            gearList.forEach(i => { i.packed = false; });
+            saveState();
+            renderAll();
+            showToast('Wrap Reset: All items unchecked & ready for check-in');
+        }
+
+        function restoreFactoryHazKit() {
+            gearList = JSON.parse(JSON.stringify(DEFAULT_HAZ_KIT));
+            activeProfile = 'all';
+            filterMode = 'shoot';
+            saveState();
+            renderAll();
+            showToast("Restored Factory Haz's Kit List (21/07/2026)");
+        }
+
+        function setFilterMode(mode) {
+            filterMode = mode;
+            saveState();
+            renderAll();
+        }
+
+        function setCategoryFilter(cat) {
+            activeCategoryFilter = cat;
+            renderAll();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            renderAll();
+        }
+
+        function switchView(view) {
+            currentView = view;
+            ['checklist', 'matrix', 'summary'].forEach(v => {
+                const sec = document.getElementById(`view-${v}`);
+                const tab = document.getElementById(`tab-${v}`);
+                if (v === view) {
+                    sec.classList.remove('hidden');
+                    tab.className = 'py-2 px-3 rounded-lg text-xs sm:text-sm font-bold bg-amber-500 text-black shadow transition flex items-center justify-center gap-2 relative';
+                } else {
+                    sec.classList.add('hidden');
+                    tab.className = 'py-2 px-3 rounded-lg text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition flex items-center justify-center gap-2 relative';
+                }
+            });
+            renderAll();
+        }
+
+        function toggleSunlightMode() {
+            document.body.classList.toggle('sunlight-contrast');
+            const isOn = document.body.classList.contains('sunlight-contrast');
+            showToast(isOn ? 'High-Contrast Sunlight Mode ON' : 'Standard Dark Mode ON');
+        }
+
+        // ================= RENDERING =================
+        function renderAll() {
+            renderSmartAlerts();
+            renderProfileButtons();
+            renderFilterButtons();
+            renderCategoryPills();
+            renderChecklist();
+            renderMatrixView();
+            renderManifestView();
+            renderFooterStats();
+        }
+
+        function renderSmartAlerts() {
+            const container = document.getElementById('smartAlertsContainer');
+            const { alerts, missingItemIds } = evaluateSmartDependencies();
+
+            const badge = document.getElementById('missingCableBadge');
+            if (missingItemIds.length > 0) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            if (alerts.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = alerts.map(alert => {
+                if (alert.level === 'critical') {
+                    return `
+                        <div class="bg-red-950/70 border border-red-500/60 rounded-2xl p-3.5 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
+                            <div class="flex items-start gap-3">
+                                <i class="fa-solid fa-triangle-exclamation text-red-400 text-lg mt-0.5"></i>
+                                <div>
+                                    <div class="text-xs sm:text-sm font-extrabold text-red-200">${alert.title}</div>
+                                    <div class="text-xs text-red-300/90 mt-0.5">${alert.desc}</div>
+                                </div>
+                            </div>
+                            ${alert.fixIds.length > 0 ? `
+                                <button onclick='fixSingleDependency(${JSON.stringify(alert.fixIds)})' class="px-3.5 py-2 bg-red-500 hover:bg-red-400 text-black font-extrabold text-xs rounded-xl shrink-0 transition self-start sm:self-center">
+                                    <i class="fa-solid fa-plus mr-1"></i>Add Required Item
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                } else if (alert.level === 'warning') {
+                    return `
+                        <div class="bg-amber-950/60 border border-amber-500/50 rounded-2xl p-3.5 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="flex items-start gap-3">
+                                <i class="fa-solid fa-plug-circle-exclamation text-amber-400 text-lg mt-0.5"></i>
+                                <div>
+                                    <div class="text-xs sm:text-sm font-extrabold text-amber-200">${alert.title}</div>
+                                    <div class="text-xs text-amber-300/90 mt-0.5">${alert.desc}</div>
+                                </div>
+                            </div>
+                            ${alert.fixIds.length > 0 ? `
+                                <button onclick='fixSingleDependency(${JSON.stringify(alert.fixIds)})' class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs rounded-xl shrink-0 transition self-start sm:self-center">
+                                    <i class="fa-solid fa-plus mr-1"></i>Add to Shoot
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="bg-sky-950/50 border border-sky-500/40 rounded-2xl p-3 sm:px-5 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-plane-up text-sky-400 text-base"></i>
+                                <div>
+                                    <span class="text-xs font-extrabold text-sky-200">${alert.title}: </span>
+                                    <span class="text-xs text-sky-300/90">${alert.desc}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
+        function renderProfileButtons() {
+            const names = {
+                all: 'Full Master Kit',
+                doc: 'Minimalist Doc (R6 II)',
+                cinema: 'Heavy Commercial (6K Pro)',
+                gimbal: 'Gimbal & Aerial',
+                interview: '2-Cam Interview',
+                custom: 'Custom Rig'
+            };
+            document.getElementById('activeProfileLabel').textContent = `Profile: ${names[activeProfile] || 'Custom Rig'}`;
+
+            ['all', 'doc', 'cinema', 'gimbal', 'interview', 'custom'].forEach(key => {
+                const btn = document.getElementById(`prof-${key}`);
+                if (!btn) return;
+                if (key === activeProfile) {
+                    btn.className = 'profile-card p-3 rounded-xl border-2 border-amber-500 bg-amber-500/15 text-left transition shadow-lg shadow-amber-500/10';
+                } else {
+                    btn.className = 'profile-card p-3 rounded-xl border border-bordercol bg-darkbg text-left transition hover:border-amber-500/50 hover:bg-cardhover group';
+                }
+            });
+        }
+
+        function renderFilterButtons() {
+            document.getElementById('totalLockerCount').textContent = gearList.length;
+            ['shoot', 'all', 'unpacked'].forEach(mode => {
+                const btn = document.getElementById(`filter-${mode}`);
+                if (!btn) return;
+                if (mode === filterMode) {
+                    btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-black transition';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition';
+                }
+            });
+        }
+
+        function renderCategoryPills() {
+            const container = document.getElementById('categoryPills');
+            const categories = ['ALL', ...Object.keys(CATEGORY_META)];
+
+            container.innerHTML = categories.map(cat => {
+                const isActive = activeCategoryFilter === cat;
+                const count = cat === 'ALL'
+                    ? gearList.filter(i => filterMode === 'all' ? true : i.inShoot).length
+                    : gearList.filter(i => i.category === cat && (filterMode === 'all' ? true : i.inShoot)).length;
+
+                return `
+                    <button onclick="setCategoryFilter('${cat}')" 
+                        class="px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border ${
+                            isActive
+                                ? 'bg-amber-500 text-black border-amber-500 shadow'
+                                : 'bg-cardbg text-gray-300 border-bordercol hover:border-gray-600'
+                        }">
+                        ${cat} <span class="mono text-[10px] opacity-80 ml-1">(${count})</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderChecklist() {
+            const container = document.getElementById('gearCategoriesContainer');
+            const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (query) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+
+            const categoriesToRender = activeCategoryFilter === 'ALL'
+                ? Object.keys(CATEGORY_META)
+                : [activeCategoryFilter];
+
+            let html = '';
+
+            categoriesToRender.forEach(category => {
+                const items = gearList.filter(item => {
+                    if (item.category !== category) return false;
+                    if (filterMode === 'shoot' && !item.inShoot) return false;
+                    if (filterMode === 'unpacked' && (!item.inShoot || item.packed)) return false;
+                    if (query) {
+                        const matchName = item.name.toLowerCase().includes(query);
+                        const matchNote = (item.note || '').toLowerCase().includes(query);
+                        const matchCat = item.category.toLowerCase().includes(query);
+                        if (!matchName && !matchNote && !matchCat) return false;
+                    }
+                    return true;
+                });
+
+                if (items.length === 0) return;
+
+                const meta = CATEGORY_META[category] || { icon: 'fa-box', color: 'text-amber-400' };
+                const packedInCat = items.filter(i => i.inShoot && i.packed).length;
+                const shootInCat = items.filter(i => i.inShoot).length;
+                const catWeight = items.filter(i => i.inShoot).reduce((acc, i) => acc + i.weight, 0);
+
+                html += `
+                    <div class="bg-cardbg border border-bordercol rounded-2xl overflow-hidden shadow-xl">
+                        <!-- Category Header -->
+                        <div class="bg-darkbg/70 px-4 py-3 border-b border-bordercol flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid ${meta.icon} ${meta.color} text-sm"></i>
+                                <h3 class="text-sm font-black uppercase tracking-wider text-white">${category}</h3>
+                                <span class="text-xs mono font-bold px-2 py-0.5 rounded-md bg-gray-800 text-gray-300">
+                                    ${packedInCat}/${shootInCat} Packed
+                                </span>
+                            </div>
+                            <div class="text-xs mono font-bold text-gray-400">
+                                ${catWeight.toFixed(2)} kg
+                            </div>
+                        </div>
+
+                        <!-- Items List -->
+                        <div class="divide-y divide-bordercol">
+                            ${items.map(item => renderGearRow(item)).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (!html) {
+                html = `
+                    <div class="bg-cardbg border border-bordercol rounded-2xl p-10 text-center space-y-3">
+                        <i class="fa-solid fa-box-open text-3xl text-gray-500"></i>
+                        <div class="text-base font-bold text-white">No gear items match your current filter</div>
+                        <p class="text-xs text-gray-400">Switch to "All Locker" to add items to your shoot or clear your search query.</p>
+                        <button onclick="setFilterMode('all'); clearSearch();" class="px-4 py-2 bg-amber-500 text-black font-extrabold text-xs rounded-xl">
+                            Show Full Locker
+                        </button>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function renderGearRow(item) {
+            const isPacked = item.inShoot && item.packed;
+            const notInShoot = !item.inShoot;
+
+            return `
+                <div onclick="toggleItemPacked('${item.id}')" 
+                    class="p-3.5 sm:px-5 flex items-center justify-between gap-3 cursor-pointer transition select-none hover:bg-cardhover ${
+                        isPacked ? 'packed-row' : ''
+                    } ${notInShoot ? 'opacity-50 bg-darkbg/40' : ''}">
+                    
+                    <!-- Left: Big High-Contrast Touch Checkbox + Details -->
+                    <div class="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                        <button type="button" aria-label="Pack Item"
+                            class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center shrink-0 transition border-2 mt-0.5 sm:mt-0 ${
+                                isPacked
+                                    ? 'bg-emerald-500 border-emerald-400 text-black shadow-lg shadow-emerald-500/25'
+                                    : item.inShoot
+                                        ? 'bg-darkbg border-gray-600 text-transparent hover:border-amber-400'
+                                        : 'bg-darkbg border-gray-800 text-transparent'
+                            }">
+                            <i class="fa-solid fa-check text-sm font-black"></i>
+                        </button>
+
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-sm sm:text-base font-bold transition ${
+                                    isPacked ? 'line-through text-gray-400' : 'text-white'
+                                }">
+                                    ${item.name}
+                                </span>
+                                ${item.isCable ? `
+                                    <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-teal-500/15 text-teal-300 border border-teal-500/30">
+                                        <i class="fa-solid fa-link mr-1"></i>Cable / Adapter
+                                    </span>
+                                ` : ''}
+                                ${item.flightWarning ? `
+                                    <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/40">
+                                        <i class="fa-solid fa-plane-slash mr-1"></i>175Wh (>160Wh Limit)
+                                    </span>
+                                ` : ''}
+                            </div>
+                            ${item.note ? `
+                                <p class="text-xs text-gray-400 mt-0.5 line-clamp-2">${item.note}</p>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Right: Weight Badge & In-Shoot Toggle -->
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span class="mono text-xs font-bold px-2.5 py-1 rounded-lg bg-darkbg border border-bordercol ${
+                            isPacked ? 'text-emerald-400 border-emerald-500/30' : 'text-gray-300'
+                        }">
+                            ${item.weight.toFixed(2)} kg
+                        </span>
+
+                        <button type="button" onclick="toggleItemInShoot('${item.id}', event)" 
+                            title="${item.inShoot ? 'Remove from today\'s shoot' : 'Include in today\'s shoot'}"
+                            class="px-2.5 py-1.5 rounded-lg text-xs font-extrabold border transition ${
+                                item.inShoot
+                                    ? 'bg-amber-500/15 text-amber-400 border-amber-500/40 hover:bg-amber-500/25'
+                                    : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white'
+                            }">
+                            ${item.inShoot ? 'In Shoot' : '+ Shoot'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ================= VIEW 2: CABLE & POWER MATRIX RENDERER =================
+        function renderMatrixView() {
+            const container = document.getElementById('matrixCardsContainer');
+            if (!container) return;
+
+            const byId = {};
+            gearList.forEach(i => { byId[i.id] = i; });
+
+            const chains = [
+                {
+                    title: 'BMPCC 6K Pro Cinema Rig Chain',
+                    icon: 'fa-video',
+                    active: byId['cam-bmpcc6k']?.inShoot,
+                    primaryItem: byId['cam-bmpcc6k'],
+                    links: [
+                        { role: 'Rigging Cage', item: byId['sup-cage'] },
+                        { role: '12V V-Lok Power Cable', item: byId['cab-weipu-dtap'] },
+                        { role: 'V-Lok 175Wh Battery', item: byId['pwr-vlok175'] },
+                        { role: 'Internal Backup Power', item: byId['pwr-npf-bm'] },
+                        { role: 'USB-C 3.2 SSD Cable + Clamp', item: byId['cab-usbc-ssd'] },
+                        { role: 'Primary BRAW Media', item: byId['sto-t7'] },
+                        { role: 'Monitor Video Feed', item: byId['cab-hdmi-full'] },
+                        { role: '48V XLR Mic Input', item: byId['cab-minixlr'] }
+                    ]
+                },
+                {
+                    title: 'Canon EOS R6 Mark II Hybrid Chain',
+                    icon: 'fa-camera',
+                    active: byId['cam-r6m2']?.inShoot,
+                    primaryItem: byId['cam-r6m2'],
+                    links: [
+                        { role: 'EF-to-RF Lens Mount Adapter', item: byId['cab-ef-rf'] },
+                        { role: 'Primary Battery Pack (x3)', item: byId['pwr-lpe6nh'] },
+                        { role: 'Spare OEM Battery', item: byId['pwr-lpe6'] },
+                        { role: 'Primary 4K60 SD Card', item: byId['sto-v60'] },
+                        { role: 'Monitor Video Cable', item: byId['cab-hdmi-micro'] },
+                        { role: '3.5mm Audio Input Cable', item: byId['cab-trs35'] }
+                    ]
+                },
+                {
+                    title: 'Neewer F100 7" Monitoring & Optics Chain',
+                    icon: 'fa-tv',
+                    active: byId['mon-f100']?.inShoot || byId['acc-nd77']?.inShoot,
+                    primaryItem: byId['mon-f100'],
+                    links: [
+                        { role: 'Monitor Battery (NP-F570)', item: byId['pwr-npf-gen'] },
+                        { role: 'Monitor Magic Arm / Mount', item: byId['cab-mon-arm'] },
+                        { role: '6K Pro Full HDMI Cable', item: byId['cab-hdmi-full'] },
+                        { role: 'R6 II Micro-HDMI Cable', item: byId['cab-hdmi-micro'] },
+                        { role: '77mm Variable ND4-32', item: byId['acc-nd77'] },
+                        { role: '58mm-to-77mm Step-Up (for 70-300mm)', item: byId['cab-stepup'] }
+                    ]
+                },
+                {
+                    title: 'Audio, Gimbal & Aerial Power/Data Chain',
+                    icon: 'fa-microphone-lines',
+                    active: true,
+                    primaryItem: byId['aud-m650'],
+                    links: [
+                        { role: '3-Pin XLR Cables (NT1A/SM57/STC-1)', item: byId['cab-xlr'] },
+                        { role: 'Mini-XLR Adapter (6K Pro)', item: byId['cab-minixlr'] },
+                        { role: '3.5mm TRS Patch (M650/Shotgun/DR07P)', item: byId['cab-trs35'] },
+                        { role: 'MVG460 Gimbal & Focus Cables', item: byId['cab-mvg460'] },
+                        { role: 'USB-C PD & Data (Mini 4 Pro / WD 2TB)', item: byId['cab-usbc-multi'] },
+                        { role: 'LP-E6NH & NP-F570 Chargers', item: byId['cab-chargers'] },
+                        { role: 'Hawk-Woods V-Lok Charger', item: byId['cab-vlok-chg'] }
+                    ]
+                }
+            ];
+
+            container.innerHTML = chains.map(chain => `
+                <div class="bg-darkbg border ${chain.active ? 'border-bordercol' : 'border-gray-800 opacity-60'} rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-bordercol pb-2.5">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid ${chain.icon} text-amber-400"></i>
+                            <h4 class="text-sm font-extrabold text-white">${chain.title}</h4>
+                        </div>
+                        <span class="text-[10px] mono font-bold px-2 py-0.5 rounded ${
+                            chain.active ? 'bg-emerald-500/15 text-emerald-400' : 'bg-gray-800 text-gray-400'
+                        }">
+                            ${chain.active ? 'ACTIVE IN SHOOT' : 'STANDBY'}
+                        </span>
+                    </div>
+
+                    <div class="space-y-2">
+                        ${chain.links.map(link => {
+                            const it = link.item;
+                            if (!it) return '';
+                            const statusClass = it.inShoot && it.packed
+                                ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                                : it.inShoot
+                                    ? 'bg-amber-500/10 border-amber-500/40 text-amber-300'
+                                    : 'bg-cardbg border-bordercol text-gray-500';
+                            const statusText = it.inShoot && it.packed
+                                ? 'PACKED'
+                                : it.inShoot
+                                    ? 'IN SHOOT (UNPACKED)'
+                                    : 'NOT IN SHOOT';
+
+                            return `
+                                <div onclick="toggleItemPacked('${it.id}')" class="p-2.5 rounded-xl border ${statusClass} flex items-center justify-between gap-2 cursor-pointer transition hover:brightness-110">
+                                    <div class="min-w-0">
+                                        <div class="text-[10px] uppercase tracking-wider font-extrabold opacity-75">${link.role}</div>
+                                        <div class="text-xs font-bold text-white truncate">${it.name}</div>
+                                    </div>
+                                    <span class="text-[10px] mono font-extrabold px-2 py-1 rounded bg-black/30 shrink-0">
+                                        ${statusText}
+                                    </span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ================= VIEW 3: MANIFEST TEXT GENERATOR =================
+        function renderManifestView() {
+            const out = document.getElementById('manifestTextOutput');
+            if (!out) return;
+
+            const shootItems = gearList.filter(i => i.inShoot);
+            const packedItems = shootItems.filter(i => i.packed);
+            const totalShootWeight = shootItems.reduce((s, i) => s + i.weight, 0);
+            const totalPackedWeight = packedItems.reduce((s, i) => s + i.weight, 0);
+
+            let lines = [];
+            lines.push(`========================================================`);
+            lines.push(`HAZ'S CAMERA KIT MANIFEST (Master List: 21/07/2026)`);
+            lines.push(`Generated: ${new Date().toLocaleString()}`);
+            lines.push(`Packed Status: ${packedItems.length} / ${shootItems.length} Items Packed`);
+            lines.push(`Packed Weight: ${totalPackedWeight.toFixed(2)} kg (Total Rig: ${totalShootWeight.toFixed(2)} kg)`);
+            lines.push(`========================================================\n`);
+
+            Object.keys(CATEGORY_META).forEach(cat => {
+                const catItems = shootItems.filter(i => i.category === cat);
+                if (catItems.length === 0) return;
+                lines.push(`[ ${cat.toUpperCase()} ]`);
+                catItems.forEach(item => {
+                    const box = item.packed ? '[X]' : '[ ]';
+                    lines.push(`${box} ${item.name} (${item.weight.toFixed(2)} kg)`);
+                });
+                lines.push('');
+            });
+
+            out.textContent = lines.join('\n');
+        }
+
+        function copyManifestToClipboard() {
+            const text = document.getElementById('manifestTextOutput').textContent;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('Camera Manifest copied to clipboard!');
+        }
+
+        // ================= FOOTER STATS & WEIGHT WARNINGS =================
+        function renderFooterStats() {
+            const shootItems = gearList.filter(i => i.inShoot);
+            const packedItems = shootItems.filter(i => i.packed);
+
+            const shootWeight = shootItems.reduce((sum, i) => sum + i.weight, 0);
+            const packedWeight = packedItems.reduce((sum, i) => sum + i.weight, 0);
+
+            document.getElementById('navBadgeCount').textContent = `${packedItems.length}/${shootItems.length}`;
+            document.getElementById('footerPackedCount').textContent = `${packedItems.length} / ${shootItems.length} Packed`;
+            document.getElementById('footerPackedWeight').textContent = `${packedWeight.toFixed(2)} kg`;
+            document.getElementById('footerShootWeight').textContent = `${shootWeight.toFixed(2)} kg`;
+
+            const unpackedCount = shootItems.length - packedItems.length;
+            const missingEl = document.getElementById('footerMissingWarning');
+            if (shootItems.length === 0) {
+                missingEl.textContent = 'Select a shoot profile above to begin packing';
+                missingEl.className = 'text-[11px] font-semibold text-gray-400';
+            } else if (unpackedCount === 0) {
+                missingEl.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i>All shoot gear & cables packed! Ready to roll.';
+                missingEl.className = 'text-[11px] font-extrabold text-emerald-400';
+            } else {
+                missingEl.textContent = `${unpackedCount} item(s) remaining to pack into cases`;
+                missingEl.className = 'text-[11px] font-semibold text-amber-400';
+            }
+
+            // Weight Limit Visual Indicator (20kg Carry-On / 30kg Checked limit)
+            const weightBadge = document.getElementById('weightLimitBadge');
+            const weightReadout = document.getElementById('footerPackedWeight');
+            const progressBar = document.getElementById('weightProgressBar');
+
+            // Scale bar out of 40kg max
+            const pct = Math.min(100, (packedWeight / 40) * 100);
+            progressBar.style.width = `${pct}%`;
+
+            if (packedWeight > 30) {
+                weightReadout.className = 'text-sm sm:text-base font-black mono text-red-400';
+                progressBar.className = 'h-full bg-red-500 transition-all duration-300';
+                weightBadge.innerHTML = '<i class="fa-solid fa-weight-hanging mr-1"></i>EXCEEDS 30KG CHECKED BAG LIMIT!';
+                weightBadge.className = 'text-[11px] font-extrabold text-red-400';
+            } else if (packedWeight > 20) {
+                weightReadout.className = 'text-sm sm:text-base font-black mono text-amber-400';
+                progressBar.className = 'h-full bg-amber-500 transition-all duration-300';
+                weightBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i>Over 20kg Carry-On (Under 30kg Checked)';
+                weightBadge.className = 'text-[11px] font-extrabold text-amber-400';
+            } else {
+                weightReadout.className = 'text-sm sm:text-base font-black mono text-emerald-400';
+                progressBar.className = 'h-full bg-emerald-500 transition-all duration-300';
+                weightBadge.innerHTML = '<i class="fa-solid fa-plane-circle-check mr-1"></i>Under 20kg Carry-On Limit';
+                weightBadge.className = 'text-[11px] font-bold text-emerald-400';
+            }
+        }
+
+        // ================= MODALS =================
+        function openAddItemModal() {
+            document.getElementById('addItemModal').classList.remove('hidden');
+            document.getElementById('newItemName').focus();
+        }
+
+        function closeAddItemModal() {
+            document.getElementById('addItemModal').classList.add('hidden');
+            document.getElementById('addItemForm').reset();
+        }
+
+        function handleAddCustomItem(e) {
+            e.preventDefault();
+            const name = document.getElementById('newItemName').value.trim();
+            const category = document.getElementById('newItemCat').value;
+            const weight = parseFloat(document.getElementById('newItemWeight').value) || 0.1;
+            const note = document.getElementById('newItemNote').value.trim();
+
+            if (!name) return;
+
+            const newItem = {
+                id: 'custom-' + Date.now(),
+                name,
+                category,
+                weight,
+                inShoot: true,
+                packed: false,
+                note: note || 'Custom added kit item',
+                isCable: category === 'Cables & Adapters',
+                requires: []
+            };
+
+            gearList.push(newItem);
+            saveState();
+            closeAddItemModal();
+            renderAll();
+            showToast(`Added "${name}" to ${category}`);
+        }
+
+        function openResetMenu() {
+            document.getElementById('resetModal').classList.remove('hidden');
+        }
+
+        function closeResetMenu() {
+            document.getElementById('resetModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
