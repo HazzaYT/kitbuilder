@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#090a0f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>KitBuilder — Haz's Kit List</title>
+  <style>
+    :root {
+      --bg: #090a0f;
+      --card: #141722;
+      --card-checked: #0f241c;
+      --border: #262b3d;
+      --accent: #f59e0b;
+      --green: #10b981;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+    body {
+      margin: 0;
+      padding: 0 0 110px 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overscroll-behavior-y: none;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(9, 10, 15, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+    }
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .brand span {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .btn-reset {
+      background: #1e2336;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .btn-reset:active { transform: scale(0.97); }
+    .weight-bar-wrap {
+      margin-top: 10px;
+      background: #121520;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .weight-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #222738;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--green);
+      transition: width 0.25s ease, background 0.25s ease;
+    }
+    .profiles {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 12px 16px 4px 16px;
+      scrollbar-width: none;
+    }
+    .profiles::-webkit-scrollbar { display: none; }
+    .chip {
+      flex-shrink: 0;
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 9px 14px;
+      border-radius: 99px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .chip.active {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+    }
+    .alerts-container {
+      padding: 8px 16px 0 16px;
+    }
+    .alert-box {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+    }
+    .alert-box.flight {
+      background: rgba(59, 130, 246, 0.14);
+      border-color: var(--blue);
+    }
+    .btn-fix {
+      flex-shrink: 0;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-weight: 700;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+    .category-block {
+      padding: 12px 16px 0 16px;
+    }
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .item-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .item-card.checked {
+      background: var(--card-checked);
+      border-color: var(--green);
+    }
+    .checkbox {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      border: 2px solid var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-weight: 900;
+      color: #000;
+    }
+    .item-card.checked .checkbox {
+      background: var(--green);
+      border-color: var(--green);
+    }
+    .item-info {
+      flex: 1;
+    }
+    .item-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .item-card.checked .item-name {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+    .item-meta {
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+    .item-weight {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(245, 158, 11, 0.12);
+      padding: 4px 8px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="top-row">
+      <div class="brand">
+        <h1>KitBuilder</h1>
+        <span>Haz's Kit List • 21/07/2026</span>
+      </div>
+      <button class="btn-reset" onclick="resetAll()">Wrap / Reset</button>
+    </div>
+
+    <div class="weight-bar-wrap">
+      <div class="weight-stats">
+        <span id="packedCount">0 / 0 Packed</span>
+        <span id="weightText">0.00 kg / 20 kg Limit</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="weightFill"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="profiles" id="profileBar">
+    <button class="chip" onclick="applyProfile('all', this)">Full Inventory</button>
+    <button class="chip" onclick="applyProfile('cinema', this)">BMPCC 6K Rig</button>
+    <button class="chip" onclick="applyProfile('doc', this)">R6 II Run & Gun</button>
+    <button class="chip" onclick="applyProfile('gimbal', this)">MVG460 Gimbal</button>
+    <button class="chip" onclick="applyProfile('audio', this)">Multi-Mic Audio</button>
+    <button class="chip" onclick="applyProfile('aerial', this)">Drone Pack</button>
+  </div>
+
+  <div class="alerts-container" id="alertsBox"></div>
+  <main id="kitContainer"></main>
+
+  <script>
+    const INITIAL_GEAR = [
+      // Cameras
+      { id: "bmpcc6k", name: "Blackmagic Pocket Cinema Camera 6K Pro", category: "Cameras", weight: 1.24, note: "EF Mount • Super 35", tags: ["cinema"] },
+      { id: "r6m2", name: "Canon EOS R6 Mark II", category: "Cameras", weight: 0.67, note: "RF Mount • Full Frame", tags: ["doc", "gimbal"] },
+
+      // Lenses
+      { id: "ef1755", name: "Canon EF 17-55mm f/2.8 IS USM (APS-C)", category: "Lenses", weight: 0.65, note: "77mm Thread • EF Mount", tags: ["cinema"] },
+      { id: "ef70300", name: "Canon EF 70-300mm f/4-5.6 IS USM", category: "Lenses", weight: 0.63, note: "58mm Thread • EF Mount", tags: ["cinema", "doc"] },
+      { id: "ef24105", name: "Canon EF 24-105mm f/4L IS II USM (FF)", category: "Lenses", weight: 0.79, note: "77mm Thread • EF Mount", tags: ["cinema", "doc", "gimbal"] },
+
+      // Gimbal & Support
+      { id: "mvg460", name: "Manfrotto MVG460 Gimbal + Follow-Focus Addon", category: "Gimbal & Support", weight: 1.65, note: "4.6kg Payload • Follow Focus Motor", tags: ["gimbal"] },
+      { id: "tp37", name: "Neewer 74\" TP37 Fluid-Head Tripod", category: "Gimbal & Support", weight: 3.85, note: "Fluid Head & Sticks", tags: ["cinema", "doc"] },
+      { id: "cage6k", name: "BMPCC 6K Pro SmallRig Cage", category: "Gimbal & Support", weight: 0.31, note: "Form-Fitting Rig Cage", tags: ["cinema"] },
+
+      // Monitors
+      { id: "f100", name: "Neewer F100 7\" Field Monitor", category: "Monitors", weight: 0.34, note: "Requires 1x NP-F570 + HDMI", tags: ["cinema"] },
+
+      // Power & Batteries
+      { id: "vlok175", name: "1x Hawk-Woods VL-175HP V-Lok Battery", category: "Power & Batteries", weight: 1.05, note: "175Wh High-Draw V-Mount", tags: ["cinema"] },
+      { id: "lpe6nh", name: "3x NEEWER LP-E6NH Batteries", category: "Power & Batteries", weight: 0.24, note: "For Canon R6 Mark II", tags: ["doc", "gimbal"] },
+      { id: "lpe6", name: "1x Canon LP-E6 Battery", category: "Power & Batteries", weight: 0.08, note: "Spare Canon LP-E6", tags: ["doc", "gimbal"] },
+      { id: "bmd_npf", name: "2x Blackmagic NP-F570 Batteries", category: "Power & Batteries", weight: 0.30, note: "For 6K Pro / F100 Monitor", tags: ["cinema"] },
+      { id: "gen_npf", name: "3x Generic NP-F570 Batteries", category: "Power & Batteries", weight: 0.45, note: "For Neewer F100 / 6K Pro", tags: ["cinema", "doc"] },
+
+      // Audio
+      { id: "dr07p", name: "TASCAM DR-07P Portable Recorder", category: "Audio", weight: 0.13, note: "Handheld Stereo / Line Recorder", tags: ["doc", "audio"] },
+      { id: "m650", name: "AnkerWork M650 Wireless Lavalier Set + TX", category: "Audio", weight: 0.18, note: "Dual Wireless Lav + Receiver", tags: ["cinema", "doc", "gimbal", "audio"] },
+      { id: "nt1a", name: "Rode NT1A Condenser Microphone", category: "Audio", weight: 0.32, note: "XLR • Requires 48V Phantom Power", tags: ["audio"] },
+      { id: "sm57", name: "Shure SM57 Dynamic Microphone", category: "Audio", weight: 0.28, note: "XLR Dynamic Cardioid", tags: ["audio"] },
+      { id: "stc1", name: "Sontronics STC-1 Small Diaphragm Condenser", category: "Audio", weight: 0.16, note: "XLR • Requires 48V Phantom Power", tags: ["audio"] },
+      { id: "shotgun35", name: "3.5mm Shotgun Microphone", category: "Audio", weight: 0.09, note: "On-Camera 3.5mm TRS Mic", tags: ["doc", "gimbal", "audio"] },
+
+      // Aerial
+      { id: "mini4pro", name: "DJI Mini 4 Pro (with DJI RC-2)", category: "Aerial", weight: 0.75, note: "Sub-249g Drone + Screen Controller", tags: ["aerial", "doc"] },
+
+      // Storage
+      { id: "t7shield", name: "Samsung T7 Shield 1TB SSD (USB-C)", category: "Storage", weight: 0.10, note: "Primary BMPCC 6K Pro BRAW Drive", tags: ["cinema"] },
+      { id: "wd2tb", name: "WD Blue 2TB Passport HDD (USB-C)", category: "Storage", weight: 0.15, note: "Offload & Backup Drive", tags: ["cinema", "doc", "aerial"] },
+      { id: "sonyv60", name: "Sony V60 128GB SD Card", category: "Storage", weight: 0.01, note: "High-Speed 4K Card for R6 II", tags: ["doc", "gimbal"] },
+      { id: "v30sd", name: "4x V30 SD Cards", category: "Storage", weight: 0.02, note: "For TASCAM, DJI Mini 4 Pro, Backup", tags: ["cinema", "doc", "aerial", "audio"] },
+
+      // Accessories
+      { id: "nd77", name: "Neewer ND4-32 Variable ND Filter (77mm)", category: "Accessories", weight: 0.07, note: "Fits 17-55mm & 24-105mm directly", tags: ["cinema", "doc", "gimbal"] },
+      { id: "leicaclean", name: "LEICA Lens Cleaning Kit", category: "Accessories", weight: 0.12, note: "Blower, Brush & Optical Fluid", tags: ["cinema", "doc", "gimbal", "aerial"] },
+      { id: "srtool", name: "SmallRig Multi-Tool", category: "Accessories", weight: 0.08, note: "Allen Keys & Flathead Rig Driver", tags: ["cinema", "doc", "gimbal"] },
+      { id: "gentool", name: "Generic Multi-Tool", category: "Accessories", weight: 0.11, note: "Pliers & Backup Drivers", tags: ["cinema", "doc"] },
+
+      // Required Cables & Adapters
+      { id: "cab_ef_rf", name: "Canon EF-EOS R Mount Adapter", category: "Required Cables & Adapters", weight: 0.11, note: "REQUIRED: Mounts EF Lenses to Canon R6 II", tags: ["doc", "gimbal"] },
+      { id: "cab_weipu", name: "2-Pin Weipu to D-Tap Cable + V-Lok Plate", category: "Required Cables & Adapters", weight: 0.22, note: "REQUIRED: Powers BMPCC 6K Pro from VL-175HP", tags: ["cinema"] },
+      { id: "cab_usbc_ssd", name: "USB-C 3.2 Gen 2 Data Cable + T7 SSD Clamp", category: "Required Cables & Adapters", weight: 0.08, note: "REQUIRED: Connects T7 Shield SSD to 6K Pro", tags: ["cinema"] },
+      { id: "cab_hdmi_full", name: "Full HDMI to Full HDMI Cable (Coiled)", category: "Required Cables & Adapters", weight: 0.06, note: "Connects BMPCC 6K Pro to Neewer F100", tags: ["cinema"] },
+      { id: "cab_hdmi_micro", name: "Micro-HDMI to Full HDMI Cable", category: "Required Cables & Adapters", weight: 0.05, note: "Connects Canon R6 Mark II to Neewer F100", tags: ["doc"] },
+      { id: "cab_gimbal", name: "MVG460 USB-C Control & Follow-Focus Cable", category: "Required Cables & Adapters", weight: 0.06, note: "Connects Manfrotto Follow-Focus + Camera", tags: ["gimbal"] },
+      { id: "cab_xlr", name: "XLR Mic Cables (3-Pin) + 48V Phantom Interface", category: "Required Cables & Adapters", weight: 0.35, note: "REQUIRED for Rode NT1A, STC-1 & Shure SM57", tags: ["audio"] },
+      { id: "cab_trs", name: "3.5mm TRS Patch Cable (Coiled)", category: "Required Cables & Adapters", weight: 0.03, note: "Links AnkerWork M650 / DR-07P to Camera", tags: ["cinema", "doc", "gimbal", "audio"] },
+      { id: "cab_step58_77", name: "58mm to 77mm Step-Up Filter Ring", category: "Required Cables & Adapters", weight: 0.02, note: "Mounts 77mm ND4-32 onto 58mm EF 70-300mm", tags: ["cinema", "doc"] },
+      { id: "cab_chargers", name: "V-Lok D-Tap Charger + Dual NP-F / LP-E6 / USB-C Leads", category: "Required Cables & Adapters", weight: 0.48, note: "Charging brick & USB-C leads for all batteries", tags: ["cinema", "doc", "gimbal", "aerial"] }
+    ];
+
+    const STORAGE_KEY = "haz_kitbuilder_2026_v1";
+    let checkedIds = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(checkedIds));
+      render();
+    }
+
+    function isChecked(id) {
+      return checkedIds.includes(id);
+    }
+
+    function toggleItem(id) {
+      if (isChecked(id)) {
+        checkedIds = checkedIds.filter(i => i !== id);
+      } else {
+        checkedIds.push(id);
+      }
+      saveState();
+    }
+
+    function enableItems(ids) {
+      ids.forEach(id => {
+        if (!checkedIds.includes(id)) checkedIds.push(id);
+      });
+      saveState();
+    }
+
+    function applyProfile(profile, btn) {
+      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+      if (profile === "all") {
+        checkedIds = INITIAL_GEAR.map(g => g.id);
+      } else {
+        checkedIds = INITIAL_GEAR.filter(g => g.tags.includes(profile)).map(g => g.id);
+      }
+      saveState();
+    }
+
+    function resetAll() {
+      if (confirm("Reset and unpack all items for Wrap Day?")) {
+        checkedIds = [];
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        saveState();
+      }
+    }
+
+    function evaluateDependencies() {
+      const alerts = [];
+      const hasAnyEFLens = isChecked("ef1755") || isChecked("ef70300") || isChecked("ef24105");
+
+      // 1. Canon R6 Mark II + EF Lenses requires EF-EOS R Adapter
+      if (isChecked("r6m2") && hasAnyEFLens && !isChecked("cab_ef_rf")) {
+        alerts.push({
+          text: "Canon R6 II + EF Lens packed without EF-EOS R Mount Adapter!",
+          fixIds: ["cab_ef_rf"],
+          fixLabel: "+ Add Adapter"
+        });
+      }
+
+      // 2. BMPCC 6K Pro + Hawk-Woods V-Lok requires Weipu to D-Tap cable
+      if (isChecked("bmpcc6k") && isChecked("vlok175") && !isChecked("cab_weipu")) {
+        alerts.push({
+          text: "BMPCC 6K Pro + V-Lok Battery requires 2-Pin Weipu to D-Tap Cable!",
+          fixIds: ["cab_weipu"],
+          fixLabel: "+ Add Weipu Cable"
+        });
+      }
+
+      // 3. BMPCC 6K Pro + Samsung T7 Shield requires USB-C 3.2 Data Cable + Clamp
+      if (isChecked("bmpcc6k") && isChecked("t7shield") && !isChecked("cab_usbc_ssd")) {
+        alerts.push({
+          text: "T7 Shield SSD needs USB-C 3.2 Gen 2 Data Cable & SSD Clamp!",
+          fixIds: ["cab_usbc_ssd"],
+          fixLabel: "+ Add USB-C Cable"
+        });
+      }
+
+      // 4. Neewer F100 Monitor requires NP-F570 + HDMI
+      if (isChecked("f100")) {
+        if (!isChecked("bmd_npf") && !isChecked("gen_npf")) {
+          alerts.push({
+            text: "Neewer F100 7\" Monitor requires at least 1x NP-F570 Battery!",
+            fixIds: ["gen_npf"],
+            fixLabel: "+ Add NP-F570"
+          });
+        }
+        if (isChecked("bmpcc6k") && !isChecked("cab_hdmi_full")) {
+          alerts.push({
+            text: "Neewer F100 + BMPCC 6K Pro requires Full HDMI to Full HDMI Cable!",
+            fixIds: ["cab_hdmi_full"],
+            fixLabel: "+ Add Full HDMI"
+          });
+        }
+        if (isChecked("r6m2") && !isChecked("cab_hdmi_micro")) {
+          alerts.push({
+            text: "Neewer F100 + Canon R6 II requires Micro-HDMI to Full HDMI Cable!",
+            fixIds: ["cab_hdmi_micro"],
+            fixLabel: "+ Add Micro-HDMI"
+          });
+        }
+      }
+
+      // 5. XLR Mics (NT1A, SM57, STC-1) require XLR Cable & 48V Supply
+      if ((isChecked("nt1a") || isChecked("sm57") || isChecked("stc1")) && !isChecked("cab_xlr")) {
+        alerts.push({
+          text: "XLR Microphones selected without XLR Cables / 48V Phantom Interface!",
+          fixIds: ["cab_xlr"],
+          fixLabel: "+ Add XLR Kit"
+        });
+      }
+
+      // 6. 77mm ND Filter + 58mm EF 70-300mm Lens
+      if (isChecked("nd77") && isChecked("ef70300") && !isChecked("cab_step58_77")) {
+        alerts.push({
+          text: "EF 70-300mm (58mm thread) needs 58mm-to-77mm Step-Up Ring for your 77mm ND!",
+          fixIds: ["cab_step58_77"],
+          fixLabel: "+ Add Step-Up Ring"
+        });
+      }
+
+      // 7. Manfrotto MVG460 Follow Focus cable
+      if (isChecked("mvg460") && !isChecked("cab_gimbal")) {
+        alerts.push({
+          text: "Manfrotto MVG460 packed without USB-C Follow-Focus & Control Cable!",
+          fixIds: ["cab_gimbal"],
+          fixLabel: "+ Add Gimbal Cable"
+        });
+      }
+
+      // 8. Flight Advisory for 175Wh V-Lok
+      if (isChecked("vlok175")) {
+        alerts.push({
+          type: "flight",
+          text: "IATA Flight Note: Hawk-Woods VL-175HP is 175Wh (101–160Wh airline approval threshold; carry-on only, check carrier policy)."
+        });
+      }
+
+      return alerts;
+    }
+
+    function render() {
+      const container = document.getElementById("kitContainer");
+      const alertsBox = document.getElementById("alertsBox");
+
+      // Calculate weight & counts
+      let totalWeight = 0;
+      INITIAL_GEAR.forEach(item => {
+        if (isChecked(item.id)) totalWeight += item.weight;
+      });
+
+      document.getElementById("packedCount").textContent = `${checkedIds.length} / ${INITIAL_GEAR.length} Packed`;
+      document.getElementById("weightText").textContent = `${totalWeight.toFixed(2)} kg / 20 kg Carry-On`;
+
+      const fill = document.getElementById("weightFill");
+      const pct = Math.min((totalWeight / 30) * 100, 100);
+      fill.style.width = pct + "%";
+      if (totalWeight > 30) {
+        fill.style.background = "var(--red)";
+      } else if (totalWeight > 20) {
+        fill.style.background = "var(--accent)";
+      } else {
+        fill.style.background = "var(--green)";
+      }
+
+      // Render dependency alerts
+      const alerts = evaluateDependencies();
+      alertsBox.innerHTML = alerts.map((a, idx) => `
+        <div class="alert-box ${a.type === 'flight' ? 'flight' : ''}">
+          <span>${a.text}</span>
+          ${a.fixIds ? `<button class="btn-fix" onclick='enableItems(${JSON.stringify(a.fixIds)})'>${a.fixLabel}</button>` : ''}
+        </div>
+      `).join("");
+
+      // Group items by category
+      const categories = [...new Set(INITIAL_GEAR.map(i => i.category))];
+      container.innerHTML = categories.map(cat => {
+        const items = INITIAL_GEAR.filter(i => i.category === cat);
+        const catChecked = items.filter(i => isChecked(i.id)).length;
+        return `
+          <section class="category-block">
+            <div class="category-header">
+              <span>${cat}</span>
+              <span>${catChecked}/${items.length}</span>
+            </div>
+            ${items.map(item => {
+              const checked = isChecked(item.id);
+              return `
+                <div class="item-card ${checked ? 'checked' : ''}" onclick="toggleItem('${item.id}')">
+                  <div class="checkbox">${checked ? '✓' : ''}</div>
+                  <div class="item-info">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-meta">${item.note}</div>
+                  </div>
+                  <div class="item-weight">${item.weight.toFixed(2)} kg</div>
+                </div>
+              `;
+            }).join("")}
+          </section>
+        `;
+      }).join("");
+    }
+
+    render();
+  </script>
+</body>
+</html>
